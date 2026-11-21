@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lifework-clean-v20261121125705';
+const CACHE_NAME = 'lifework-clean-v20261121130241';
 const ASSETS = [
   './',
   './index.html',
