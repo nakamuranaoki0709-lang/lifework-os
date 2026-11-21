@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lifework-fast-v20261121093752';
+const CACHE_NAME = 'lifework-fast-v20261121100731';
 const CORE_ASSETS = [
   './',
   './index.html',
