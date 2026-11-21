@@ -1,5 +1,5 @@
-const CACHE_NAME = 'lifework-fast-v20261121100731';
-const CORE_ASSETS = [
+const CACHE_NAME = 'lifework-clean-v20261121125705';
+const ASSETS = [
   './',
   './index.html',
   './manifest.json',
@@ -9,7 +9,7 @@ const CORE_ASSETS = [
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
   );
 });
 
@@ -22,36 +22,20 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+  if (event.request.method !== 'GET') return;
+  const url = event.request.url;
+  if (url.includes('script.google.com') || url.includes('script.googleusercontent.com')) return;
 
-  const url = new URL(req.url);
-  // GASへのデータ同期通信はキャッシュせずそのまま通す
-  if (url.hostname.includes('script.google.com') || url.hostname.includes('googleusercontent.com')) {
-    return;
-  }
-
-  // アプリ本体とUIライブラリ（Tailwind / FontAwesome）はキャッシュから即返却（0.01秒）
-  const isAppAsset = (url.origin === self.location.origin) ||
-                     url.hostname.includes('cdn.tailwindcss.com') ||
-                     url.hostname.includes('cdnjs.cloudflare.com');
-
-  if (isAppAsset) {
-    event.respondWith(
-      caches.match(req, { ignoreSearch: url.origin === self.location.origin }).then((cached) => {
-        const networkFetch = fetch(req).then((fresh) => {
-          if (fresh && (fresh.ok || fresh.type === 'opaque')) {
-            caches.open(CACHE_NAME).then((c) => c.put(req, fresh.clone()));
-          }
-          return fresh;
-        }).catch(() => null);
-
-        if (cached) {
-          // 既にキャッシュがあれば0.01秒で即返し、裏側で最新化
-          return cached;
+  // オンライン時は必ず最新を取得してキャッシュ更新、オフライン時のみキャッシュから返却
+  event.respondWith(
+    fetch(event.request)
+      .then((res) => {
+        if (res && res.status === 200 && url.startsWith(self.location.origin)) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
-        return networkFetch.then((res) => res || caches.match('./index.html'));
+        return res;
       })
-    );
-  }
+      .catch(() => caches.match(event.request))
+  );
 });

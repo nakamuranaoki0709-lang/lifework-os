@@ -1115,6 +1115,104 @@
         if (isManual) showToast('ローカルキャッシュで表示しています', true);
       });
   };
+    var _origProcessSyncQueue = processSyncQueue;
+  processSyncQueue = function(isManual) {
+    if (hasGasBridge()) return _origProcessSyncQueue(isManual);
+    if (!navigator.onLine) {
+      updateSyncBadge();
+      if (isManual) showToast('オフライン中です（端末内に保存済）', true);
+      return;
+    }
+    if (isSyncingNow || (syncQueue.length === 0 && !kvDirty)) {
+      updateSyncBadge();
+      return;
+    }
+    if (!ensurePwaToken()) { isSyncingNow = false; updateSyncBadge(); return; }
+    isSyncingNow = true;
+    updateSyncBadge();
+
+    var batch = syncQueue.slice(0, 10);
+    fetch(window.PWA_GAS_ENDPOINT, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: window.PWA_GAS_TOKEN, batch: batch, kv: collectAllAppKv() })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      isSyncingNow = false;
+      if (res && res.ok) {
+        var sentIds = batch.map(function(b) { return b.id; });
+        syncQueue = syncQueue.filter(function(q) { return sentIds.indexOf(q.id) === -1; });
+        kvDirty = false;
+        try { localStorage.setItem(KEY_SYNC_QUEUE, JSON.stringify(syncQueue)); } catch (e) {}
+        updateSyncBadge();
+        if (syncQueue.length > 0) {
+          processSyncQueue(false);
+        } else if (isManual) {
+          showToast('スプレッドシートへ同期しました');
+        }
+      } else {
+        updateSyncBadge();
+      }
+    })
+    .catch(function() {
+      isSyncingNow = false;
+      updateSyncBadge();
+      if (isManual) showToast('通信待機中です（ローカルに保持）', true);
+    });
+  };
+
+  var _origSyncAndFetchBundle = syncAndFetchBundle;
+  syncAndFetchBundle = function(isManual) {
+    if (hasGasBridge()) return _origSyncAndFetchBundle(isManual);
+    if (!navigator.onLine) {
+      updateSyncBadge();
+      if (isManual) showToast('オフラインモードで動作中です', true);
+      return;
+    }
+    if (syncQueue.length > 0 || kvDirty) {
+      processSyncQueue(isManual);
+      return;
+    }
+    if (!ensurePwaToken()) { isSyncingNow = false; updateSyncBadge(); return; }
+    isSyncingNow = true;
+    updateSyncBadge();
+
+    var url = window.PWA_GAS_ENDPOINT + '?api=1&token=' + encodeURIComponent(window.PWA_GAS_TOKEN);
+    fetch(url, { method: 'GET', redirect: 'follow' })
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        isSyncingNow = false;
+        if (txt.trim().charAt(0) === '<') {
+          updateSyncBadge();
+          showToast('GASのアクセス権限を確認してください', true);
+          return;
+        }
+        var res = JSON.parse(txt);
+        if (res && res.error === 'Unauthorized') {
+          localStorage.removeItem('lifework_os_api_token');
+          window.PWA_GAS_TOKEN = '';
+          updateSyncBadge();
+          showToast('トークンを再入力してください', true);
+          return;
+        }
+        if (res && res.ok) {
+          if (res.bundle && syncQueue.length === 0) mergeDbSnapshot(res.bundle);
+          if (res.kv) applyAllAppKv(res.kv);
+          kvDirty = false;
+        }
+        updateSyncBadge();
+        if (typeof refreshAll === 'function') refreshAll();
+        if (typeof renderCurrentView === 'function') renderCurrentView();
+        if (isManual) showToast('最新データを取得しました');
+      })
+      .catch(function() {
+        isSyncingNow = false;
+        updateSyncBadge();
+        if (isManual) showToast('ローカルキャッシュで表示しています', true);
+      });
+  };
   function manualSyncNow() {
     if (!navigator.onLine) {
       showToast('現在オフラインです（データは端末に保存済）', true);
