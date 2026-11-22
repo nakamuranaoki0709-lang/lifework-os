@@ -128,9 +128,8 @@
     var today = new Date();
     var todayStr = formatDateLocal(today);
     var monthPrefix = todayStr.substring(0, 7);
-    var monStr = formatDateLocal(getMonday(today));
-    var sunDate = getMonday(today); sunDate.setDate(sunDate.getDate() + 6);
-    var sunStr = formatDateLocal(sunDate);
+    var monStr = getMonday(today);
+    var sunStr = getShiftDateStr(monStr, 6);
 
     function inRange(d) {
       if (!d) return false;
