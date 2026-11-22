@@ -795,6 +795,7 @@
     } catch (e) {}
     resetSyncBase();
     restoreSyncBaseFromQueue();
+    resetSettingsBase();
     migrateLegacyStorage();
     updateSyncBadge();
   }
@@ -942,20 +943,83 @@
     return syncQueue.length > 0 || (typeof _bgSyncTimers !== 'undefined' && Object.keys(_bgSyncTimers).length > 0);
   }
 
+  // ------------------------------------------------------------
+  // 設定データ（夢リスト等）の同期。控え（settingsBase）からの変更を送り、サーバーで最新の値に重ねる
+  // ------------------------------------------------------------
+  var settingsBase = {};
+  var SETTING_STORES = {
+    dreams: { ls: 'worklife_os_dreams_v2', read: function() { return getDreamListStore(); } },
+    credos: { ls: 'worklife_os_credos_v1', read: function() { return getMyCredosList(); } },
+    capsules: { ls: 'worklife_os_capsules_v1', read: function() { return getTimeCapsulesStore(); } },
+    masterOptions: { ls: 'worklife_os_master_options_v2', read: function() { return getMasterOptions(); } },
+    pinnedHashtags: { ls: 'worklife_os_pinned_hashtags_v1', read: function() { return getPinnedHashtags(); } }
+  };
+  var REVIEW_PREFIX = 'review:';
+  var KEY_LS_REVIEWS = 'worklife_os_period_reviews_v1';
+
+  // 総括メモは期間ごとに 1 件（キー review:W_2026-11-16 など）
+  function readSetting(key) {
+    if (key.indexOf(REVIEW_PREFIX) === 0) return getPeriodReviewsStore()[key.slice(REVIEW_PREFIX.length)] || '';
+    return SETTING_STORES[key] ? SETTING_STORES[key].read() : undefined;
+  }
+
+  function resetSettingsBase() {
+    settingsBase = {};
+    Object.keys(SETTING_STORES).forEach(function(k) { settingsBase[k] = cloneJson(readSetting(k)); });
+    var reviews = getPeriodReviewsStore();
+    Object.keys(reviews).forEach(function(k) { settingsBase[REVIEW_PREFIX + k] = reviews[k]; });
+    syncQueue.forEach(function(q) {
+      if (q.settingKey && q.payload && q.payload._merge) settingsBase[q.settingKey] = cloneJson(q.payload._merge.base);
+    });
+  }
+
   function pushCloudAppSetting(key, valueObj) {
-    enqueueSync('saveAppSettingKv', 'kv_' + key, { key: key, value: valueObj });
+    queueSetting(key, valueObj);
+    saveLocalCache();
+    if (navigator.onLine) processSyncQueue(false);
+  }
+
+  function queueSetting(key, valueObj) {
+    var base = settingsBase[key];
+    if (base === undefined) base = Array.isArray(valueObj) ? [] : (typeof valueObj === 'object' ? {} : '');
+    if (sameJson(base, valueObj)) {
+      syncQueue = syncQueue.filter(function(q) { return !(q.settingKey === key && q.base); });
+      return;
+    }
+    var item = queueItem('saveAppSettingKv', 'kv_' + key, { key: key, _merge: { base: cloneJson(base), next: cloneJson(valueObj) } });
+    item.settingKey = key;
+    item.base = {}; // 失敗しても捨てない目印
+  }
+
+  function commitSetting(item) {
+    settingsBase[item.settingKey] = cloneJson(item.payload._merge.next);
+    var now = readSetting(item.settingKey);
+    if (now !== undefined) queueSetting(item.settingKey, now); // 送信中の編集・取り消しを送り直す
   }
 
   function applyCloudAppSettings(kv) {
     if (!kv || typeof kv !== 'object') return;
-    var map = {
-      dreams: 'worklife_os_dreams_v2', credos: 'worklife_os_credos_v1', capsules: 'worklife_os_capsules_v1',
-      masterOptions: 'worklife_os_master_options_v2', pinnedHashtags: 'worklife_os_pinned_hashtags_v1'
-    };
-    Object.keys(map).forEach(function(k) {
+    Object.keys(SETTING_STORES).forEach(function(k) {
       if (kv[k] === null || typeof kv[k] !== 'object') return;
       if ((k === 'masterOptions') === Array.isArray(kv[k])) return;
-      try { localStorage.setItem(map[k], JSON.stringify(kv[k])); } catch (e) {}
+      try { localStorage.setItem(SETTING_STORES[k].ls, JSON.stringify(kv[k])); } catch (e) {}
+    });
+    // 旧形式（periodReviews に全期間）→ 期間ごとの値の順で重ねる
+    var reviews = getPeriodReviewsStore();
+    var old = (kv.periodReviews && typeof kv.periodReviews === 'object') ? kv.periodReviews : {};
+    Object.keys(old).forEach(function(k) { reviews[k] = String(old[k]); });
+    // サーバーにない総括メモ（以前の不具合で消えたもの）は、端末に残っていれば送り直す
+    var lost = Object.keys(reviews).filter(function(k) {
+      return reviews[k] && old[k] === undefined && kv[REVIEW_PREFIX + k] === undefined;
+    });
+    Object.keys(kv).forEach(function(k) {
+      if (k.indexOf(REVIEW_PREFIX) === 0) reviews[k.slice(REVIEW_PREFIX.length)] = kv[k] === null ? '' : String(kv[k]);
+    });
+    try { localStorage.setItem(KEY_LS_REVIEWS, JSON.stringify(reviews)); } catch (e) {}
+    resetSettingsBase();
+    lost.forEach(function(k) {
+      settingsBase[REVIEW_PREFIX + k] = '';
+      pushCloudAppSetting(REVIEW_PREFIX + k, reviews[k]);
     });
   }
 
@@ -1018,6 +1082,7 @@
       var extra = local.filter(function(v) { return ids.indexOf(idOf(v)) === -1; });
       if (extra.length === 0) return;
       var merged = server.concat(extra);
+      settingsBase[k] = cloneJson(server);
       if (kv) kv[k] = merged;
       pushCloudAppSetting(k, merged);
     });
@@ -1101,6 +1166,7 @@
       commitSyncBase(item);
       // 送信中にさらに編集・取り消しがあれば、その差分を送り直す
       if (DIFF_SPECS[item.action] && item.base) queueDiff(item.action, item.payload.date);
+      if (item.settingKey && item.payload._merge) commitSetting(item);
       lastSyncError = '';
       saveLocalCache();
       renderSyncInspectorBody();
@@ -2697,7 +2763,7 @@
     var store = getPeriodReviewsStore();
     store[bounds.key] = val;
     try { localStorage.setItem(KEY_PERIOD_REVIEWS, JSON.stringify(store)); } catch (e) {}
-    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('periodReviews', store);
+    pushCloudAppSetting(REVIEW_PREFIX + bounds.key, String(val));
     showToast('期間総括を保存しました');
   }
 
