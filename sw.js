@@ -1,41 +1,29 @@
-const CACHE_NAME = 'lifework-modular-v20261121132608';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon.svg'
-];
+// 端末内の画面を即座に返す（通信を待たない）。更新は裏で取得し、次回の起動から反映する
+const CACHE = 'lifework-8399efc90160';
+const ASSETS = ["./index.html","./manifest.json","./icon.svg","./vendor/icons.css","./vendor/chart.umd.js","./vendor/fa-solid-900.woff2","./vendor/fa-regular-400.woff2"];
 
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
+    caches.open(CACHE)
+      .then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('lifework-') && k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  const url = event.request.url;
-  if (url.includes('script.google.com') || url.includes('script.googleusercontent.com')) return;
-
-  // オンライン時は必ず最新を取得してキャッシュ更新、オフライン時のみキャッシュから返却
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   event.respondWith(
-    fetch(event.request)
-      .then((res) => {
-        if (res && res.status === 200 && url.startsWith(self.location.origin)) {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return res;
-      })
-      .catch(() => caches.match(event.request))
+    caches.open(CACHE)
+      .then(c => c.match(req.mode === 'navigate' ? './index.html' : req, { ignoreSearch: true }))
+      .then(hit => hit || fetch(req))
   );
 });
