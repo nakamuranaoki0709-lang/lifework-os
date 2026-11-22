@@ -1,0 +1,9 @@
+<script>
+  function getCategoriesForCurrentDomain() {
+    var workCats = ['コア業務', '会議・調整', '作業・事務', '調査・設計', '移動・休憩'];
+    var privCats = ['英語学習', 'プログラミング', '読書・インプット', '運動・健康', '家事・家族', '趣味・休息'];
+    if (currentDomain === 'work') return workCats;
+    if (currentDomain === 'private') return privCats;
+    return workCats.concat(privCats);
+  }
+</script>

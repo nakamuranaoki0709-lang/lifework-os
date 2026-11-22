@@ -1,0 +1,7 @@
+# Ignore all subdirectories
+**/**
+
+# Only allow root level files
+!*.gs
+!*.html
+!appsscript.json

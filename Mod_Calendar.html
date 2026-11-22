@@ -1,0 +1,264 @@
+<div id="integratedCalendarSection" class="card-surface p-3.5 space-y-3">
+  <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+    <div class="bg-slate-100 p-0.5 rounded-lg flex items-center text-[10px] font-semibold">
+      <button type="button" id="calModeTodayBtn" onclick="setCalendarViewMode('today')" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition">Today</button>
+      <button type="button" id="calModeWeeklyBtn" onclick="setCalendarViewMode('weekly')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition">Weekly</button>
+      <button type="button" id="calModeMonthlyBtn" onclick="setCalendarViewMode('monthly')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition">Monthly</button>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <button type="button" onclick="shiftCalendarCursor(-1)" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+      <span id="calCursorTitle" class="text-[11px] font-mono font-bold text-slate-900 px-1.5 min-w-[92px] text-center"></span>
+      <button type="button" onclick="shiftCalendarCursor(1)" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+      <button type="button" onclick="jumpCalendarToToday()" class="px-2 py-1 rounded-md bg-slate-900 text-white text-[9px] font-semibold ml-0.5">今日</button>
+    </div>
+  </div>
+
+  <div id="integratedCalendarBody" class="space-y-2"></div>
+</div>
+
+<script>
+  App.mount('#slot-calendar-main', 'integratedCalendarSection');
+
+  var calendarViewMode = 'today';
+  var calRangeEventsCache = {};
+
+  function setCalendarViewMode(mode) {
+    calendarViewMode = mode;
+    ['today', 'weekly', 'monthly'].forEach(function(m) {
+      var btn = document.getElementById('calMode' + m.charAt(0).toUpperCase() + m.slice(1) + 'Btn');
+      if (btn) {
+        btn.className = (m === mode)
+          ? 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition font-bold'
+          : 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition font-semibold';
+      }
+    });
+    renderIntegratedCalendarView();
+  }
+
+  function shiftCalendarCursor(dir) {
+    var inp = document.getElementById('targetDate');
+    var base = new Date((inp && inp.value ? inp.value : formatDateLocal(new Date())) + 'T12:00:00');
+    if (calendarViewMode === 'today') base.setDate(base.getDate() + dir);
+    else if (calendarViewMode === 'weekly') base.setDate(base.getDate() + (dir * 7));
+    else base.setMonth(base.getMonth() + dir);
+    if (inp) inp.value = formatDateLocal(base);
+    onTargetDateChanged();
+  }
+
+  function jumpCalendarToToday() {
+    var inp = document.getElementById('targetDate');
+    if (inp) inp.value = formatDateLocal(new Date());
+    onTargetDateChanged();
+  }
+
+  function renderIntegratedCalendarView() {
+    var body = document.getElementById('integratedCalendarBody');
+    var titleEl = document.getElementById('calCursorTitle');
+    var inp = document.getElementById('targetDate');
+    if (!body || !inp) return;
+
+    var anchorStr = inp.value || formatDateLocal(new Date());
+    var anchorDate = new Date(anchorStr + 'T12:00:00');
+    var dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+    var rangeStartStr = anchorStr;
+    var rangeEndStr = anchorStr;
+
+    if (calendarViewMode === 'today') {
+      titleEl.textContent = anchorStr + ' (' + dayNames[anchorDate.getDay()] + ')';
+    } else if (calendarViewMode === 'weekly') {
+      var mon = getMonday(anchorDate);
+      var sun = new Date(mon);
+      sun.setDate(sun.getDate() + 6);
+      rangeStartStr = formatDateLocal(mon);
+      rangeEndStr = formatDateLocal(sun);
+      titleEl.textContent = (mon.getMonth() + 1) + '/' + mon.getDate() + ' 〜 ' + (sun.getMonth() + 1) + '/' + sun.getDate();
+    } else {
+      var firstDay = new Date(anchorDate.getFullYear(), anchorDate.getMonth(), 1);
+      var lastDay = new Date(anchorDate.getFullYear(), anchorDate.getMonth() + 1, 0);
+      rangeStartStr = formatDateLocal(firstDay);
+      rangeEndStr = formatDateLocal(lastDay);
+      titleEl.textContent = anchorDate.getFullYear() + '年 ' + (anchorDate.getMonth() + 1) + '月';
+    }
+
+    var cacheKey = rangeStartStr + '_' + rangeEndStr;
+    if (calRangeEventsCache[cacheKey]) {
+      drawCalendarModeContent(body, anchorDate, anchorStr, calRangeEventsCache[cacheKey]);
+      return;
+    }
+
+    body.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i>予定とタスクを読み込み中...</div>';
+    if (typeof google !== 'undefined' && google.script && google.script.run && navigator.onLine) {
+      google.script.run
+        .withSuccessHandler(function(res) {
+          var evs = (res && res.ok) ? (res.events || []) : [];
+          calRangeEventsCache[cacheKey] = evs;
+          drawCalendarModeContent(body, anchorDate, anchorStr, evs);
+        })
+        .withFailureHandler(function() {
+          drawCalendarModeContent(body, anchorDate, anchorStr, []);
+        })
+        .getCalendarEventsForRange(rangeStartStr, rangeEndStr);
+    } else {
+      drawCalendarModeContent(body, anchorDate, anchorStr, []);
+    }
+  }
+
+  function getTodosOnDate(ds) {
+    return (db.todos || []).filter(function(t) {
+      if (t.completed) return false;
+      if (t.dueDate === ds || t.startDate === ds) return true;
+      if (t.startDate && t.dueDate && t.startDate <= ds && ds <= t.dueDate) return true;
+      return false;
+    });
+  }
+
+  function getActivityCountOnDate(ds) {
+    var c = 0;
+    var w = db.workLogs.find(function(l) { return l.date === ds; });
+    var p = db.privateLogs.find(function(l) { return l.date === ds; });
+    if (w && w.scheduleText) c += w.scheduleText.split('\n').filter(Boolean).length;
+    if (p && p.scheduleText) c += p.scheduleText.split('\n').filter(Boolean).length;
+    return c;
+  }
+
+  function drawCalendarModeContent(body, anchorDate, anchorStr, events) {
+    body.innerHTML = '';
+    var dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+    if (calendarViewMode === 'today') {
+      var dayEvs = events.filter(function(e) { return e.date === anchorStr; });
+      var dayTodos = getTodosOnDate(anchorStr);
+      var w = db.workLogs.find(function(l) { return l.date === anchorStr; });
+      var p = db.privateLogs.find(function(l) { return l.date === anchorStr; });
+      var logs = [];
+      if (w && w.scheduleText) logs = logs.concat(w.scheduleText.split('\n').filter(Boolean));
+      if (p && p.scheduleText) logs = logs.concat(p.scheduleText.split('\n').filter(Boolean));
+
+      body.innerHTML =
+        '<div class="space-y-2.5">' +
+          '<div class="space-y-1">' +
+            '<div class="text-[10px] font-bold text-sky-800 flex items-center gap-1"><i class="fa-regular fa-calendar"></i> Googleカレンダー予定 (' + dayEvs.length + '件)</div>' +
+            (dayEvs.length === 0
+              ? '<div class="text-[11px] text-slate-400 bg-slate-50 rounded-lg p-2">予定はありません</div>'
+              : dayEvs.map(function(ev) {
+                  var tm = ev.isAllDay ? '終日' : (ev.startTime + ' - ' + ev.endTime);
+                  return '<div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-sky-50/70 border border-sky-200/70 text-xs">' +
+                    '<span class="font-mono text-[10px] font-bold text-sky-800 w-20 shrink-0">' + escapeHtml(tm) + '</span>' +
+                    '<span class="font-semibold text-slate-900 truncate">' + escapeHtml(ev.title) + '</span>' +
+                  '</div>';
+                }).join('')) +
+          '</div>' +
+          '<div class="space-y-1">' +
+            '<div class="text-[10px] font-bold text-rose-800 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> この日の対象タスク (' + dayTodos.length + '件)</div>' +
+            (dayTodos.length === 0
+              ? '<div class="text-[11px] text-slate-400 bg-slate-50 rounded-lg p-2">対象タスクはありません</div>'
+              : dayTodos.map(function(t) {
+                  return '<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-rose-50/60 border border-rose-200/70 text-xs">' +
+                    '<span class="font-semibold text-slate-900 truncate">' + escapeHtml(t.title) + '</span>' +
+                    '<span class="text-[9px] font-mono text-slate-500 shrink-0">' + (t.dueDate ? '〆' + t.dueDate : '') + '</span>' +
+                  '</div>';
+                }).join('')) +
+          '</div>' +
+          '<div class="space-y-1">' +
+            '<div class="text-[10px] font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-clock-rotate-left"></i> 記録済み活動ログ (' + logs.length + '件)</div>' +
+            (logs.length === 0
+              ? '<div class="text-[11px] text-slate-400 bg-slate-50 rounded-lg p-2">活動ログはまだありません</div>'
+              : logs.map(function(line) {
+                  return '<div class="px-2.5 py-1 rounded bg-slate-50 border border-slate-200/70 text-[11px] font-mono text-slate-700">' + escapeHtml(line) + '</div>';
+                }).join('')) +
+          '</div>' +
+        '</div>';
+      return;
+    }
+
+    if (calendarViewMode === 'weekly') {
+      var mon = getMonday(anchorDate);
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(mon);
+        d.setDate(d.getDate() + i);
+        var ds = formatDateLocal(d);
+        var isSel = (ds === anchorStr);
+        var dEvs = events.filter(function(e) { return e.date === ds; });
+        var dTodos = getTodosOnDate(ds);
+        var actCnt = getActivityCountOnDate(ds);
+
+        var card = document.createElement('div');
+        card.onclick = (function(targetDs) {
+          return function() {
+            document.getElementById('targetDate').value = targetDs;
+            setCalendarViewMode('today');
+          };
+        })(ds);
+        card.className = 'p-2 rounded-xl border cursor-pointer transition space-y-1 ' + (isSel ? 'bg-sky-50/50 border-sky-400' : 'bg-slate-50/70 border-slate-200/80 hover:border-slate-300');
+        card.innerHTML =
+          '<div class="flex items-center justify-between text-xs">' +
+            '<span class="font-mono font-bold ' + (d.getDay() === 0 ? 'text-rose-600' : (d.getDay() === 6 ? 'text-sky-600' : 'text-slate-900')) + '">' +
+              (d.getMonth() + 1) + '/' + d.getDate() + ' (' + dayNames[d.getDay()] + ')' +
+            '</span>' +
+            '<div class="flex items-center gap-1.5 text-[9px] font-mono">' +
+              (dEvs.length > 0 ? '<span class="px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 font-bold">予定 ' + dEvs.length + '</span>' : '') +
+              (dTodos.length > 0 ? '<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 font-bold">タスク ' + dTodos.length + '</span>' : '') +
+              (actCnt > 0 ? '<span class="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold">ログ ' + actCnt + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          (dEvs.length > 0 || dTodos.length > 0
+            ? '<div class="space-y-0.5 pl-1">' +
+                dEvs.slice(0, 3).map(function(ev) {
+                  return '<div class="text-[10px] text-slate-700 truncate"><span class="text-sky-600 font-bold mr-1">●</span>' + (ev.isAllDay ? '' : ev.startTime + ' ') + escapeHtml(ev.title) + '</div>';
+                }).join('') +
+                dTodos.slice(0, 2).map(function(t) {
+                  return '<div class="text-[10px] text-rose-800 truncate"><span class="font-bold mr-1">☐</span>' + escapeHtml(t.title) + '</div>';
+                }).join('') +
+              '</div>'
+            : '<div class="text-[10px] text-slate-400 pl-1">予定・タスクなし</div>');
+        body.appendChild(card);
+      }
+      return;
+    }
+
+    // Monthly グリッド表示
+    var year = anchorDate.getFullYear();
+    var month = anchorDate.getMonth();
+    var firstDay = new Date(year, month, 1);
+    var startOffset = (firstDay.getDay() + 6) % 7; // 月曜始まり
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var todayStr = formatDateLocal(new Date());
+
+    var headerRow = '<div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-slate-400 pb-1">' +
+      ['月', '火', '水', '木', '金', '土', '日'].map(function(w) { return '<div>' + w + '</div>'; }).join('') +
+    '</div>';
+
+    var gridHtml = '<div class="grid grid-cols-7 gap-1">';
+    for (var b = 0; b < startOffset; b++) {
+      gridHtml += '<div class="h-14 rounded-lg bg-slate-50/40"></div>';
+    }
+    for (var day = 1; day <= daysInMonth; day++) {
+      var ds = year + '-' + ('0' + (month + 1)).slice(-2) + '-' + ('0' + day).slice(-2);
+      var evCount = events.filter(function(e) { return e.date === ds; }).length;
+      var tdCount = getTodosOnDate(ds).length;
+      var lgCount = getActivityCountOnDate(ds);
+      var isToday = (ds === todayStr);
+      var isSelected = (ds === anchorStr);
+
+      gridHtml +=
+        '<button type="button" onclick="selectMonthCalendarDay(\'' + ds + '\')" class="h-14 p-1 rounded-lg border text-left flex flex-col justify-between transition ' +
+          (isSelected ? 'border-slate-900 bg-slate-900/5' : 'border-slate-200/70 bg-white hover:border-slate-400') + '">' +
+          '<span class="text-[10px] font-mono font-bold leading-none ' + (isToday ? 'px-1 py-0.5 rounded bg-sky-600 text-white' : 'text-slate-800') + '">' + day + '</span>' +
+          '<div class="space-y-0.5 w-full">' +
+            (evCount > 0 ? '<div class="text-[8px] leading-none px-1 py-0.5 rounded bg-sky-100 text-sky-900 font-bold truncate">予' + evCount + '</div>' : '') +
+            (tdCount > 0 ? '<div class="text-[8px] leading-none px-1 py-0.5 rounded bg-rose-100 text-rose-900 font-bold truncate">タ' + tdCount + '</div>' : '') +
+            (evCount === 0 && tdCount === 0 && lgCount > 0 ? '<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mx-auto"></div>' : '') +
+          '</div>' +
+        '</button>';
+    }
+    gridHtml += '</div>';
+    body.innerHTML = headerRow + gridHtml;
+  }
+
+  function selectMonthCalendarDay(ds) {
+    document.getElementById('targetDate').value = ds;
+    setCalendarViewMode('today');
+  }
+</script>

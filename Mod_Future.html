@@ -1,0 +1,810 @@
+<!-- Todayページ用：現在の目標（Objectives） -->
+<div id="homeGoalsCard" class="card-surface p-3 space-y-1.5 border-t-2 border-t-blue-950">
+  <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+    <h2 class="font-bold text-[10px] text-blue-950 uppercase tracking-wider">Current Goals</h2>
+    <button type="button" onclick="switchView('future')" class="text-[9px] font-bold text-indigo-900 hover:underline">
+      人生設計・目標へ →
+    </button>
+  </div>
+  <div id="homeGoalsListArea" class="divide-y divide-slate-100"></div>
+</div>
+
+<!-- 将来タブメインワークスペース -->
+<div id="futureLifeDesignSection" class="space-y-2.5">
+
+  <!-- 1. 人生時計 -->
+  <div class="card-surface p-3.5 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white space-y-2 border border-indigo-900/50">
+    <div class="flex items-center justify-between">
+      <span class="text-[9px] font-mono uppercase tracking-widest text-amber-300 font-bold">LIFE CLOCK</span>
+      <button type="button" onclick="editTargetLifespanAge()" class="text-[9px] font-mono px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-slate-200 transition">
+        TARGET <span id="lifeTargetAgeLabel" class="font-bold text-amber-300">80</span>歳
+      </button>
+    </div>
+    <div class="flex items-baseline justify-between gap-2">
+      <div>
+        <span class="text-[11px] text-slate-300 mr-1.5"><span id="lifeTargetAgeInline">80</span>歳まで あと</span>
+        <span id="lifeRemainDaysNum" class="text-2xl font-mono font-bold text-white tracking-tight">17,397</span>
+        <span class="text-xs font-semibold text-amber-300 ml-1">日</span>
+      </div>
+      <div class="text-right font-mono text-[10px] text-slate-300">
+        <div>残り <span id="lifeRemainWeeksNum" class="font-bold text-white">2,485</span> 週</div>
+        <div>経過 <span id="lifeElapsedPctText" class="text-sky-300">40.5%</span></div>
+      </div>
+    </div>
+    <div class="w-full h-1.5 rounded-full bg-white/15 overflow-hidden">
+      <div id="lifeProgressBarFill" class="h-full bg-gradient-to-r from-amber-400 to-sky-400 rounded-full transition-all duration-500" style="width: 40.5%"></div>
+    </div>
+  </div>
+
+  <!-- 2. やりたいことリスト ＆ 未来年表 -->
+  <div class="card-surface p-3 space-y-2 border-t-2 border-t-indigo-900">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+      <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md text-[10px] font-bold">
+        <button type="button" id="dreamViewGenreBtn" onclick="switchDreamDisplayMode('genre')" class="px-2.5 py-1 rounded bg-blue-950 text-white shadow-2xs">やりたいことリスト</button>
+        <button type="button" id="dreamViewTimelineBtn" onclick="switchDreamDisplayMode('timeline')" class="px-2.5 py-1 rounded text-slate-600">未来年表（年齢別）</button>
+      </div>
+      <button type="button" onclick="toggleDreamAddBox()" class="px-2.5 py-1 bg-indigo-950 hover:bg-indigo-900 text-white rounded-md text-[10px] font-bold">
+        + 夢を追加
+      </button>
+    </div>
+
+    <!-- 6領域フィルターチップ -->
+    <div id="dreamGenreFilterBar" class="flex items-center gap-1 flex-wrap"></div>
+
+    <!-- 夢＆数値目標登録フォーム -->
+    <div id="dreamAddFormBox" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-2 hidden">
+      <input type="text" id="newDreamTitleInput" placeholder="叶えたい夢・達成したいこと..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white font-semibold outline-none focus:border-blue-950">
+      <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <select id="newDreamCategorySelect" class="px-2 py-1.5 border border-slate-200 rounded-lg bg-white font-semibold text-slate-800">
+          <option value="社会・仕事">社会・仕事</option>
+          <option value="経済・モノ・お金">経済・モノ・お金</option>
+          <option value="プライベート・家族">プライベート・家族</option>
+          <option value="教養・知識">教養・知識</option>
+          <option value="健康・美容">健康・美容</option>
+          <option value="心・精神">心・精神</option>
+        </select>
+        <input type="month" id="newDreamTargetMonth" class="px-2 py-1.5 border border-slate-200 rounded-lg font-mono bg-white" title="実現予定年月">
+      </div>
+      <div class="grid grid-cols-[1fr_76px_68px] gap-1 text-[10px]">
+        <input type="text" id="newDreamMetricLabel" placeholder="数値指標 (例: TOEIC)" class="px-2 py-1.5 border border-slate-200 rounded-lg bg-white outline-none">
+        <input type="number" id="newDreamMetricTarget" placeholder="目標値" class="px-2 py-1.5 border border-slate-200 rounded-lg font-mono bg-white outline-none">
+        <input type="text" id="newDreamMetricUnit" placeholder="単位" class="px-2 py-1.5 border border-slate-200 rounded-lg bg-white outline-none">
+      </div>
+      <button type="button" onclick="addDreamItem()" class="w-full py-1.5 bg-blue-950 text-white rounded-lg text-xs font-bold">登録する</button>
+    </div>
+
+    <div id="dreamListItemsArea" class="space-y-1.5"></div>
+  </div>
+
+  <!-- 3. 目標マイルストーン -->
+  <div class="card-surface p-3 space-y-2 border-t-2 border-t-teal-900">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+      <h2 class="font-bold text-xs text-slate-900">目標マイルストーン（年・月・週）</h2>
+      <button type="button" onclick="openNewGoalForm()" class="px-2.5 py-0.5 bg-teal-900 text-white rounded text-[9px] font-bold">+ 目標追加</button>
+    </div>
+
+    <div id="goalEditCard" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1.5 hidden">
+      <input type="hidden" id="editGoalId" value="">
+      <div class="grid grid-cols-2 gap-1.5 text-xs">
+        <select id="editGoalType" class="px-2 py-1 border border-slate-200 rounded text-[10px] font-bold bg-white">
+          <option value="yearly">年間目標</option>
+          <option value="monthly">月間目標</option>
+          <option value="weekly">週間目標</option>
+        </select>
+        <input type="number" id="editGoalProgress" min="0" max="100" value="0" placeholder="達成率%" class="px-2 py-1 border border-slate-200 rounded text-[10px] font-mono font-bold bg-white">
+      </div>
+      <div class="grid grid-cols-2 gap-1.5 text-xs">
+        <input type="date" id="editGoalStart" class="px-2 py-1 border border-slate-200 rounded text-[10px] font-mono bg-white">
+        <input type="date" id="editGoalEnd" class="px-2 py-1 border border-slate-200 rounded text-[10px] font-mono bg-white">
+      </div>
+      <textarea id="editGoalContent" rows="2" placeholder="目標内容..." class="w-full px-2 py-1 border border-slate-200 rounded text-xs bg-white outline-none"></textarea>
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="submitGoalForm()" class="flex-1 py-1 bg-teal-900 text-white font-bold rounded text-[10px]">保存する</button>
+        <button type="button" onclick="document.getElementById('goalEditCard').classList.add('hidden')" class="px-2.5 py-1 bg-slate-200 text-slate-700 font-bold rounded text-[10px]">閉じる</button>
+      </div>
+    </div>
+
+    <div id="activeGoalsProgressArea" class="divide-y divide-slate-100"></div>
+  </div>
+
+  <!-- 4. マイ・クレド ＆ タイムカプセル -->
+  <div class="card-surface p-3 space-y-1.5 border-t-2 border-t-amber-900">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+      <h2 class="font-bold text-xs text-slate-900">マイ・クレド（行動指針）</h2>
+      <button type="button" onclick="editMyCredosPrompt()" class="px-2 py-0.5 rounded bg-amber-900 text-amber-50 text-[10px] font-bold">編集</button>
+    </div>
+    <div id="futureCredoListArea" class="space-y-1 text-[11px] text-slate-800"></div>
+  </div>
+
+  <div class="card-surface p-3 space-y-2 border-t-2 border-t-rose-900">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+      <h2 class="font-bold text-xs text-slate-900">未来の自分へのタイムカプセル</h2>
+      <button type="button" onclick="openTimeCapsuleModal()" class="px-2.5 py-0.5 bg-rose-900 text-white rounded text-[9px] font-bold">+ 手紙を送る</button>
+    </div>
+    <div id="timeCapsuleListArea" class="space-y-1.5"></div>
+  </div>
+</div>
+
+<!-- タイムカプセル作成モーダル -->
+<div id="timeCapsuleModal" class="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-2.5 hidden">
+  <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl p-4 space-y-2.5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+      <h3 class="text-xs font-bold text-slate-900">未来の自分への手紙</h3>
+      <button type="button" onclick="document.getElementById('timeCapsuleModal').classList.add('hidden')" class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 text-xs flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="flex items-center gap-1 flex-wrap text-[10px]">
+      <button type="button" onclick="setCapsulePresetDays(30)" class="px-2 py-1 rounded bg-indigo-950 text-white font-bold">1ヶ月後</button>
+      <button type="button" onclick="setCapsulePresetDays(180)" class="px-2 py-1 rounded bg-indigo-950 text-white font-bold">半年後</button>
+      <button type="button" onclick="setCapsulePresetDays(365)" class="px-2 py-1 rounded bg-indigo-950 text-white font-bold">1年後</button>
+      <button type="button" onclick="setCapsulePresetDays(1095)" class="px-2 py-1 rounded bg-indigo-950 text-white font-bold">3年後</button>
+      <input type="date" id="capsuleUnlockDateInput" class="ml-auto px-2 py-1 border border-slate-200 rounded font-mono text-[10px]">
+    </div>
+    <textarea id="capsuleMessageInput" rows="4" placeholder="未来の自分へ伝えたいこと、今の思考、達成していたいこと..." class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-950"></textarea>
+    <button type="button" onclick="sendFutureTimeCapsule()" class="w-full py-2 bg-blue-950 hover:bg-blue-900 text-white font-bold rounded-lg text-xs">タイムカプセルを封印する</button>
+  </div>
+</div>
+
+<!-- 集計タブ上部：週間振り返りコーチ -->
+<div id="weeklyCoachReviewCard" class="card-surface p-3 space-y-2 border-t-2 border-t-blue-950">
+  <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+    <h2 class="font-bold text-xs text-slate-900">週間振り返り ＆ 相関インサイト</h2>
+    <span class="text-[9px] font-mono text-blue-950 font-bold">WEEKLY REVIEW</span>
+  </div>
+  <div id="autoCorrelationInsightsArea" class="space-y-1.5"></div>
+  <div id="bestVsStuckDayArea" class="grid grid-cols-2 gap-1.5 text-[10px]"></div>
+  <div id="weeklyStuckTasksReviewArea" class="space-y-1.5 pt-1 border-t border-slate-100"></div>
+</div>
+
+<script>
+  App.mount('#slot-home-goals', 'homeGoalsCard');
+  App.mount('#slot-future-main', 'futureLifeDesignSection');
+  App.mount('#slot-weekly-coach', 'weeklyCoachReviewCard');
+
+  var LIFE_SIX_GENRES = [
+    '社会・仕事',
+    '経済・モノ・お金',
+    'プライベート・家族',
+    '教養・知識',
+    '健康・美容',
+    '心・精神'
+  ];
+
+  var GENRE_DEEP_BADGE = {
+    '社会・仕事': 'bg-blue-950 text-blue-50',
+    '経済・モノ・お金': 'bg-amber-900 text-amber-50',
+    'プライベート・家族': 'bg-rose-900 text-rose-50',
+    '教養・知識': 'bg-indigo-900 text-indigo-50',
+    '健康・美容': 'bg-teal-900 text-teal-50',
+    '心・精神': 'bg-emerald-900 text-emerald-50'
+  };
+
+  var KEY_DREAM_LIST = 'worklife_os_dreams_v2';
+  var KEY_MY_CREDOS = 'worklife_os_credos_v1';
+  var KEY_TIME_CAPSULES = 'worklife_os_capsules_v1';
+  var KEY_ARCHIVED_GOALS = 'worklife_os_archived_goals_v1';
+  var KEY_TARGET_LIFE_AGE = 'worklife_os_target_life_age_v1';
+
+  var dreamDisplayMode = 'genre';
+  var selectedDreamGenreFilter = 'all';
+
+  function getTargetLifespanAge() {
+    var a = Number(localStorage.getItem(KEY_TARGET_LIFE_AGE) || 80);
+    return (a >= 40 && a <= 120) ? a : 80;
+  }
+
+  function editTargetLifespanAge() {
+    var cur = getTargetLifespanAge();
+    var nextStr = window.prompt('人生時計の目標年齢を入力してください（例: 80, 90, 100）:', String(cur));
+    if (!nextStr) return;
+    var num = Number(nextStr);
+    if (isNaN(num) || num < 40 || num > 120) return showToast('40〜120の年齢を入力してください', true);
+    try { localStorage.setItem(KEY_TARGET_LIFE_AGE, String(num)); } catch (e) {}
+    renderLifeCountdownClock();
+    showToast('目標年齢を ' + num + '歳 に設定しました');
+  }
+
+  function renderLifeCountdownClock() {
+    var targetAge = getTargetLifespanAge();
+    var now = new Date();
+    var birthMs = new Date(1994, 6, 9, 12, 0, 0).getTime();
+    var targetMs = new Date(1994 + targetAge, 6, 9, 12, 0, 0).getTime();
+    var todayNoonMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0).getTime();
+
+    var remainDays = Math.max(0, Math.round((targetMs - todayNoonMs) / 86400000));
+    var remainWeeks = Math.floor(remainDays / 7);
+    var elapsedPct = Math.min(100, Math.max(0, ((todayNoonMs - birthMs) / (targetMs - birthMs)) * 100)).toFixed(1);
+
+    var lbl1 = document.getElementById('lifeTargetAgeLabel');
+    var lbl2 = document.getElementById('lifeTargetAgeInline');
+    var dEl = document.getElementById('lifeRemainDaysNum');
+    var wEl = document.getElementById('lifeRemainWeeksNum');
+    var pEl = document.getElementById('lifeElapsedPctText');
+    var bEl = document.getElementById('lifeProgressBarFill');
+    if (lbl1) lbl1.textContent = targetAge;
+    if (lbl2) lbl2.textContent = targetAge;
+    if (dEl) dEl.textContent = remainDays.toLocaleString();
+    if (wEl) wEl.textContent = remainWeeks.toLocaleString();
+    if (pEl) pEl.textContent = elapsedPct + '%';
+    if (bEl) bEl.style.width = elapsedPct + '%';
+  }
+
+  function renderDreamGenreFilterBar() {
+    var box = document.getElementById('dreamGenreFilterBar');
+    if (!box) return;
+    var list = getDreamListStore();
+
+    var chips = [{ key: 'all', label: 'すべて (' + list.length + ')' }].concat(
+      LIFE_SIX_GENRES.map(function(g) {
+        var cnt = list.filter(function(d) { return d.category === g; }).length;
+        return { key: g, label: g + ' (' + cnt + ')' };
+      })
+    );
+
+    box.innerHTML = chips.map(function(ch) {
+      var active = (selectedDreamGenreFilter === ch.key);
+      return '<button type="button" data-cat="' + escapeHtml(ch.key) + '" onclick="selectDreamGenreFilter(this.getAttribute(\'data-cat\'))" class="px-2 py-0.5 rounded text-[9px] font-bold transition ' +
+        (active ? 'bg-blue-950 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200') + '">' +
+        escapeHtml(ch.label) +
+      '</button>';
+    }).join('');
+  }
+
+  function getMyCredosList() {
+    var credos = [];
+    try { credos = JSON.parse(localStorage.getItem(KEY_MY_CREDOS) || '[]'); } catch (e) {}
+    if (!credos || credos.length === 0) {
+      credos = [
+        '小さな一歩の積み重ねが、1年後の自分を創る。',
+        '迷ったら、未来の自分が誇れる方を選ぶ。',
+        '完璧を目指すより、まず3分だけ手を動かす。'
+      ];
+    }
+    return credos;
+  }
+
+  function renderHomeCredoBanner() {
+    var el = document.getElementById('homeCredoText');
+    if (!el) return;
+    var list = getMyCredosList();
+    el.textContent = list[Math.floor(Math.random() * list.length)];
+  }
+
+  function editMyCredosPrompt() {
+    var cur = getMyCredosList();
+    var nextStr = window.prompt('大切にしたい行動指針を「 / 」区切りで入力してください:', cur.join(' / '));
+    if (nextStr === null) return;
+    var arr = nextStr.split('/').map(function(s) { return s.trim(); }).filter(Boolean);
+    try { localStorage.setItem(KEY_MY_CREDOS, JSON.stringify(arr)); } catch (e) {}
+    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('credos', arr);
+    renderFutureWorkspace();
+    renderHomeCredoBanner();
+    showToast('マイ・クレドを更新しました');
+  }
+
+  function getDreamListStore() {
+    try { return JSON.parse(localStorage.getItem(KEY_DREAM_LIST) || '[]'); } catch (e) { return []; }
+  }
+  function saveDreamListStore(list) {
+    try { localStorage.setItem(KEY_DREAM_LIST, JSON.stringify(list)); } catch (e) {}
+    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('dreams', list);
+    renderDreamGenreFilterBar();
+    renderDreamListArea();
+  }
+
+  function toggleDreamAddBox() {
+    document.getElementById('dreamAddFormBox').classList.toggle('hidden');
+  }
+
+  function switchDreamDisplayMode(mode) {
+    dreamDisplayMode = mode;
+    document.getElementById('dreamViewGenreBtn').className = (mode === 'genre') ? 'px-2.5 py-1 rounded bg-blue-950 text-white shadow-2xs' : 'px-2.5 py-1 rounded text-slate-600';
+    document.getElementById('dreamViewTimelineBtn').className = (mode === 'timeline') ? 'px-2.5 py-1 rounded bg-blue-950 text-white shadow-2xs' : 'px-2.5 py-1 rounded text-slate-600';
+    renderDreamListArea();
+  }
+
+  function selectDreamGenreFilter(g) {
+    selectedDreamGenreFilter = (g === 'all' || selectedDreamGenreFilter === g) ? 'all' : g;
+    renderDreamGenreFilterBar();
+    renderDreamListArea();
+  }
+
+  function addDreamItem() {
+    var title = document.getElementById('newDreamTitleInput').value.trim();
+    if (!title) return showToast('内容を入力してください', true);
+    var cat = document.getElementById('newDreamCategorySelect').value || LIFE_SIX_GENRES[0];
+    var targetMonth = document.getElementById('newDreamTargetMonth').value || '';
+    var metricLabel = (document.getElementById('newDreamMetricLabel').value || '').trim();
+    var metricTarget = Number(document.getElementById('newDreamMetricTarget').value || 0);
+    var metricUnit = (document.getElementById('newDreamMetricUnit').value || '').trim();
+
+    var list = getDreamListStore();
+    list.unshift({
+      id: 'dream_' + Date.now(),
+      title: title,
+      category: cat,
+      targetMonth: targetMonth,
+      metricLabel: metricLabel,
+      metricTarget: metricTarget,
+      metricUnit: metricUnit,
+      achieved: false,
+      achievedDate: ''
+    });
+    document.getElementById('newDreamTitleInput').value = '';
+    document.getElementById('newDreamMetricLabel').value = '';
+    document.getElementById('newDreamMetricTarget').value = '';
+    document.getElementById('newDreamMetricUnit').value = '';
+    document.getElementById('dreamAddFormBox').classList.add('hidden');
+    saveDreamListStore(list);
+    showToast('夢リストに登録しました');
+  }
+
+  function toggleDreamAchieved(id) {
+    var list = getDreamListStore();
+    var d = list.find(function(x) { return x.id === id; });
+    if (!d) return;
+    d.achieved = !d.achieved;
+    d.achievedDate = d.achieved ? formatDateLocal(new Date()) : '';
+    saveDreamListStore(list);
+    if (d.achieved) {
+      if (typeof pushAutoSnsEvent === 'function') {
+        pushAutoSnsEvent('dream_achieved', '夢を達成しました [' + d.category + '] 『' + d.title + '』');
+      }
+      showToast('達成を記録しました');
+    }
+  }
+
+  function convertDreamToTodo(id) {
+    var d = getDreamListStore().find(function(x) { return x.id === id; });
+    if (!d) return;
+    var stepTitle = window.prompt('『' + d.title + '』に向けた最初の一歩（タスク）:', d.title + 'の計画を立てる');
+    if (!stepTitle || !stepTitle.trim()) return;
+    db.todos.unshift({
+      id: 'todo_' + Date.now(),
+      title: stepTitle.trim(),
+      importance: 'high',
+      urgency: 'mid',
+      startDate: formatDateLocal(new Date()),
+      dueDate: '',
+      project: d.category || getMasterOptions().todoProjects[0],
+      tags: ['#夢の実現'],
+      fromDreamId: d.id,
+      status: 'todo',
+      completed: false,
+      subtasks: [],
+      createdAt: formatDateLocal(new Date())
+    });
+    if (typeof saveTodosImmediate === 'function') saveTodosImmediate();
+    showToast('夢からタスクを作成しました');
+  }
+
+  function deleteDreamItem(id) {
+    saveDreamListStore(getDreamListStore().filter(function(x) { return x.id !== id; }));
+  }
+
+  function computeDreamAnnualBreakdown(d) {
+    if (!d.targetMonth || d.targetMonth.length < 7) return null;
+    var parts = d.targetMonth.split('-');
+    var targetYear = Number(parts[0]);
+    var targetMonthNum = Number(parts[1]);
+    var now = new Date();
+    var monthsDiff = (targetYear - now.getFullYear()) * 12 + (targetMonthNum - (now.getMonth() + 1));
+    var yearsSpan = Math.max(1, Math.ceil(monthsDiff / 12));
+    var ageAtTarget = targetYear - 1994;
+
+    var perYearText = '';
+    if (d.metricTarget > 0) {
+      var perYearVal = (d.metricTarget / yearsSpan);
+      var formattedVal = Number.isInteger(perYearVal) ? perYearVal : perYearVal.toFixed(1);
+      perYearText = (d.metricLabel ? d.metricLabel + ' ' : '') + '年平均 +' + formattedVal + (d.metricUnit || '');
+    }
+
+    return {
+      targetYear: targetYear,
+      ageAtTarget: ageAtTarget,
+      monthsDiff: monthsDiff,
+      yearsSpan: yearsSpan,
+      perYearText: perYearText
+    };
+  }
+
+  function renderDreamListArea() {
+    var area = document.getElementById('dreamListItemsArea');
+    if (!area) return;
+
+    var list = getDreamListStore().filter(function(d) {
+      if (selectedDreamGenreFilter !== 'all' && d.category !== selectedDreamGenreFilter) return false;
+      return true;
+    }).sort(function(a, b) {
+      if (!!a.achieved !== !!b.achieved) return a.achieved ? 1 : -1;
+      if (dreamDisplayMode === 'timeline') {
+        return String(a.targetMonth || '9999').localeCompare(String(b.targetMonth || '9999'));
+      }
+      return 0;
+    });
+
+    if (list.length === 0) {
+      area.innerHTML = '<div class="text-[10px] text-slate-400 text-center py-4">「+ 夢を追加」から叶えたいことや数値目標を登録できます</div>';
+      return;
+    }
+
+    if (dreamDisplayMode === 'timeline') {
+      var groups = {};
+      list.forEach(function(d) {
+        var yr = (d.targetMonth && d.targetMonth.length >= 4) ? d.targetMonth.slice(0, 4) : '時期未設定';
+        if (!groups[yr]) groups[yr] = [];
+        groups[yr].push(d);
+      });
+      var years = Object.keys(groups).sort();
+
+      area.innerHTML = '<div class="relative pl-3 border-l-2 border-indigo-900 space-y-2.5">' +
+        years.map(function(yr) {
+          var ageBadge = (yr !== '時期未設定') ? ' / ' + (Number(yr) - 1994) + '歳' : '';
+          return '<div class="relative space-y-1">' +
+            '<span class="w-2 h-2 rounded-full bg-indigo-900 absolute -left-[17px] top-1"></span>' +
+            '<div class="text-[11px] font-mono font-bold text-indigo-950">' + escapeHtml(yr) + '年' + ageBadge + '</div>' +
+            groups[yr].map(function(d) {
+              var bd = computeDreamAnnualBreakdown(d);
+              var bCls = GENRE_DEEP_BADGE[d.category] || 'bg-slate-800 text-white';
+              return '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200/80 text-xs">' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<span class="text-[8px] font-bold px-1.5 py-0.2 rounded shrink-0 ' + bCls + '">' + escapeHtml(d.category) + '</span>' +
+                  '<span class="font-bold text-slate-900 truncate flex-1">' + (d.achieved ? '[達成] ' : '') + escapeHtml(d.title) + '</span>' +
+                '</div>' +
+                (bd && bd.perYearText ? '<div class="text-[9px] font-mono text-indigo-900 font-bold mt-0.5">' + escapeHtml(bd.perYearText) + '</div>' : '') +
+              '</div>';
+            }).join('') +
+          '</div>';
+        }).join('') +
+      '</div>';
+      return;
+    }
+
+    area.innerHTML = list.map(function(d) {
+      var bd = computeDreamAnnualBreakdown(d);
+      var bCls = GENRE_DEEP_BADGE[d.category] || 'bg-slate-800 text-white';
+      var remLabel = bd
+        ? (bd.monthsDiff < 0 ? '期限経過' : (bd.monthsDiff === 0 ? '今月' : 'あと' + bd.monthsDiff + 'ヶ月 · ' + bd.ageAtTarget + '歳'))
+        : '時期未設定';
+      var linkedTodos = (db.todos || []).filter(function(t) { return t.fromDreamId === d.id; });
+      var linkedDone = linkedTodos.filter(function(t) { return t.completed; }).length;
+
+      return '<div class="p-2 rounded-xl border text-xs space-y-1 ' + (d.achieved ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-slate-200') + '">' +
+        '<div class="flex items-center gap-1.5">' +
+          '<button type="button" onclick="toggleDreamAchieved(\'' + d.id + '\')" class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ' + (d.achieved ? 'bg-emerald-900 border-emerald-900 text-white' : 'border-slate-400') + '">' +
+            (d.achieved ? '<i class="fa-solid fa-check text-[8px]"></i>' : '') +
+          '</button>' +
+          '<span class="text-[8px] font-bold px-1.5 py-0.2 rounded shrink-0 ' + bCls + '">' + escapeHtml(d.category) + '</span>' +
+          '<span class="text-xs font-bold truncate flex-1 ' + (d.achieved ? 'line-through text-slate-500' : 'text-slate-900') + '">' + escapeHtml(d.title) + '</span>' +
+          (!d.achieved ? '<button type="button" onclick="convertDreamToTodo(\'' + d.id + '\')" class="px-1.5 py-0.2 rounded bg-blue-950 text-white text-[8px] font-bold shrink-0" title="タスクに分解">+タスク</button>' : '') +
+          '<button type="button" onclick="deleteDreamItem(\'' + d.id + '\')" class="text-slate-300 hover:text-rose-800 text-[9px] px-0.5"><i class="fa-solid fa-xmark"></i></button>' +
+        '</div>' +
+        (d.metricTarget > 0
+          ? '<div class="pl-5 text-[9px] font-mono text-indigo-950 font-bold">TARGET: ' + escapeHtml(d.metricLabel) + ' ' + d.metricTarget + escapeHtml(d.metricUnit) +
+              (bd && bd.perYearText ? ' (' + bd.yearsSpan + '年分割 / ' + escapeHtml(bd.perYearText) + ')' : '') +
+            '</div>'
+          : '') +
+        '<div class="flex items-center justify-between pl-5 text-[9px]">' +
+          '<div class="font-mono text-slate-500">' +
+            (d.targetMonth ? escapeHtml(d.targetMonth) + ' (' + remLabel + ')' : '時期未設定') +
+            (linkedTodos.length > 0 ? ' · <span class="text-blue-900 font-bold">関連タスク ' + linkedDone + '/' + linkedTodos.length + '</span>' : '') +
+          '</div>' +
+          (d.achieved ? '<span class="font-mono text-emerald-900 font-bold">達成: ' + escapeHtml(d.achievedDate || '') + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // タイムカプセル管理
+  function getTimeCapsulesStore() {
+    try { return JSON.parse(localStorage.getItem(KEY_TIME_CAPSULES) || '[]'); } catch (e) { return []; }
+  }
+  function saveTimeCapsulesStore(list) {
+    try { localStorage.setItem(KEY_TIME_CAPSULES, JSON.stringify(list)); } catch (e) {}
+    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('capsules', list);
+    renderTimeCapsulesArea();
+  }
+
+  function openTimeCapsuleModal() {
+    setCapsulePresetDays(30);
+    document.getElementById('capsuleMessageInput').value = '';
+    document.getElementById('timeCapsuleModal').classList.remove('hidden');
+  }
+
+  function setCapsulePresetDays(days) {
+    var d = new Date();
+    d.setDate(d.getDate() + days);
+    document.getElementById('capsuleUnlockDateInput').value = formatDateLocal(d);
+  }
+
+  function sendFutureTimeCapsule() {
+    var unlockDate = document.getElementById('capsuleUnlockDateInput').value;
+    var msg = document.getElementById('capsuleMessageInput').value.trim();
+    if (!unlockDate || !msg) return showToast('開封日とメッセージを入力してください', true);
+    var list = getTimeCapsulesStore();
+    list.unshift({
+      id: 'cap_' + Date.now(),
+      createdDate: formatDateLocal(new Date()),
+      unlockDate: unlockDate,
+      text: msg,
+      replies: []
+    });
+    document.getElementById('timeCapsuleModal').classList.add('hidden');
+    saveTimeCapsulesStore(list);
+    showToast(unlockDate + ' に届く手紙を封印しました');
+  }
+
+  function replyToCapsule(id) {
+    var list = getTimeCapsulesStore();
+    var c = list.find(function(x) { return x.id === id; });
+    if (!c) return;
+    var rep = window.prompt('過去の自分からの手紙への返信:');
+    if (!rep || !rep.trim()) return;
+    if (!Array.isArray(c.replies)) c.replies = [];
+    c.replies.push({ date: formatDateLocal(new Date()), text: rep.trim() });
+    saveTimeCapsulesStore(list);
+    showToast('返信を記録しました');
+  }
+
+  function renderTimeCapsulesArea() {
+    var area = document.getElementById('timeCapsuleListArea');
+    if (!area) return;
+    var list = getTimeCapsulesStore();
+    var todayStr = formatDateLocal(new Date());
+
+    if (list.length === 0) {
+      area.innerHTML = '<div class="text-[10px] text-slate-400 text-center py-2">未来の自分へメッセージを残せます</div>';
+      return;
+    }
+
+    area.innerHTML = list.map(function(c) {
+      var locked = (c.unlockDate > todayStr);
+      if (locked) {
+        return '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200 text-[10px] flex items-center justify-between">' +
+          '<span class="font-bold text-rose-950"><i class="fa-solid fa-lock text-rose-900 mr-1.5"></i>' + escapeHtml(c.unlockDate) + ' 開封予定</span>' +
+          '<span class="font-mono text-[9px] text-slate-400">送信: ' + escapeHtml(c.createdDate) + '</span>' +
+        '</div>';
+      }
+      var repHtml = (c.replies || []).map(function(r) {
+        return '<div class="mt-1.5 pl-2 border-l-2 border-rose-900 text-[10px] text-slate-700"><span class="font-mono text-[8px] text-slate-400 mr-1">' + escapeHtml(r.date) + '</span>' + escapeHtml(r.text) + '</div>';
+      }).join('');
+
+      return '<div class="p-2.5 rounded-xl bg-white border border-slate-200 space-y-1 text-xs">' +
+        '<div class="flex items-center justify-between text-[9px] font-mono text-rose-900 font-bold">' +
+          '<span>開封済（' + escapeHtml(c.createdDate) + ' より）</span>' +
+          '<button type="button" onclick="replyToCapsule(\'' + c.id + '\')" class="underline text-blue-950">返信する</button>' +
+        '</div>' +
+        '<div class="text-[11px] text-slate-800 whitespace-pre-wrap leading-relaxed">' + escapeHtml(c.text) + '</div>' +
+        repHtml +
+      '</div>';
+    }).join('');
+  }
+
+  // Objectives（Today ＆ 将来タブ共通・関連タスク連動集計付き）
+  function getArchivedGoalIds() {
+    try { return JSON.parse(localStorage.getItem(KEY_ARCHIVED_GOALS) || '[]'); } catch (e) { return []; }
+  }
+  function addArchivedGoalId(id) {
+    var list = getArchivedGoalIds();
+    if (list.indexOf(id) === -1) {
+      list.push(id);
+      try { localStorage.setItem(KEY_ARCHIVED_GOALS, JSON.stringify(list)); } catch (e) {}
+    }
+  }
+
+  function collectAllUnifiedGoals() {
+    var archivedIds = getArchivedGoalIds();
+    var seen = {};
+    var items = [];
+    ['work', 'private'].forEach(function(dom) {
+      var store = dom === 'private' ? db.privateGoals : db.workGoals;
+      if (!store) return;
+      var raw = (store.history || []).slice();
+      ['yearly', 'monthly', 'weekly'].forEach(function(t) {
+        if (store.current && store.current[t]) raw.push(store.current[t]);
+      });
+      raw.forEach(function(g) {
+        if (!g || !g.id || seen[g.id]) return;
+        seen[g.id] = true;
+        if (archivedIds.indexOf(g.id) !== -1 || g.nextAction === '__ARCHIVED__') return;
+        items.push(Object.assign({ domain: dom }, g));
+      });
+    });
+    var order = { yearly: 1, monthly: 2, weekly: 3 };
+    items.sort(function(a, b) { return (order[a.type] || 9) - (order[b.type] || 9); });
+    return items;
+  }
+
+  function computeGoalRelatedTodoStats(g) {
+    var keywords = String(g.content || '').split(/[\s・、,（）()【】\[\]]+/).filter(function(w) { return w.length >= 2; });
+    if (keywords.length === 0) return null;
+    var matched = (db.todos || []).filter(function(t) {
+      var hay = (t.title || '') + ' ' + (t.project || '') + ' ' + (t.tags || []).join(' ');
+      return keywords.some(function(kw) { return hay.indexOf(kw) !== -1; });
+    });
+    if (matched.length === 0) return null;
+    var done = matched.filter(function(t) { return t.completed; }).length;
+    return { done: done, total: matched.length };
+  }
+
+  function buildGoalsRowsHtml(goals) {
+    var typeMeta = {
+      yearly: { label: '年', cls: 'bg-blue-950 text-white', barCls: 'bg-blue-950' },
+      monthly: { label: '月', cls: 'bg-indigo-900 text-white', barCls: 'bg-indigo-900' },
+      weekly: { label: '週', cls: 'bg-teal-900 text-white', barCls: 'bg-teal-900' }
+    };
+    return goals.map(function(g) {
+      var tm = typeMeta[g.type] || { label: '目', cls: 'bg-slate-800 text-white', barCls: 'bg-slate-800' };
+      var pct = Math.min(100, Math.max(0, Number(g.progress) || 0));
+      var relStats = computeGoalRelatedTodoStats(g);
+      var relBadge = relStats
+        ? '<span class="text-[8px] font-mono px-1 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">タスク ' + relStats.done + '/' + relStats.total + '</span>'
+        : '';
+
+      return '<div class="py-1.5 space-y-1">' +
+        '<div class="flex items-center justify-between gap-1.5">' +
+          '<div class="flex items-center gap-1.5 min-w-0 flex-1">' +
+            '<span class="text-[8px] font-bold px-1.5 py-0.2 rounded-xs shrink-0 ' + tm.cls + '">' + tm.label + '</span>' +
+            '<span class="text-[11px] font-semibold text-slate-900 truncate">' + escapeHtml(g.content) + '</span>' +
+            relBadge +
+          '</div>' +
+          '<div class="flex items-center gap-0.5 shrink-0">' +
+            '<span class="text-[9px] font-mono font-bold text-slate-700 mr-0.5">' + pct + '%</span>' +
+            '<button type="button" onclick="incrementGoalProgress(\'' + g.domain + '\', \'' + g.id + '\', 10)" class="h-4 px-1.5 rounded bg-blue-950 text-white text-[8px] font-mono font-bold">+10</button>' +
+            '<button type="button" onclick="archiveGoalItem(\'' + g.domain + '\', \'' + g.id + '\')" class="w-4 h-4 text-slate-400 hover:text-emerald-800 text-[9px]"><i class="fa-solid fa-check"></i></button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="w-full bg-slate-200/80 h-[3px] rounded-full overflow-hidden"><div class="' + tm.barCls + ' h-full" style="width:' + pct + '%"></div></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderHomeGoalsCard() {
+    var area = document.getElementById('homeGoalsListArea');
+    if (!area) return;
+    var goals = collectAllUnifiedGoals();
+    if (goals.length === 0) {
+      area.innerHTML = '<div class="text-[10px] text-slate-400 py-1 text-center">目標が未登録です</div>';
+      return;
+    }
+    area.innerHTML = buildGoalsRowsHtml(goals);
+  }
+
+  function renderUnifiedObjectivesArea() {
+    var area = document.getElementById('activeGoalsProgressArea');
+    if (!area) return;
+    var goals = collectAllUnifiedGoals();
+    if (goals.length === 0) {
+      area.innerHTML = '<div class="text-[10px] text-slate-400 py-1 text-center">「+ 目標追加」から年間・月間・週間の目標を登録できます</div>';
+      return;
+    }
+    area.innerHTML = buildGoalsRowsHtml(goals);
+  }
+
+  function openNewGoalForm() {
+    document.getElementById('editGoalId').value = '';
+    document.getElementById('editGoalType').value = 'monthly';
+    document.getElementById('editGoalProgress').value = 0;
+    document.getElementById('editGoalStart').value = formatDateLocal(new Date());
+    document.getElementById('editGoalEnd').value = '';
+    document.getElementById('editGoalContent').value = '';
+    document.getElementById('goalEditCard').classList.remove('hidden');
+  }
+
+  function submitGoalForm() {
+    var type = document.getElementById('editGoalType').value;
+    var progress = Math.min(100, Math.max(0, Number(document.getElementById('editGoalProgress').value) || 0));
+    var startDate = document.getElementById('editGoalStart').value;
+    var endDate = document.getElementById('editGoalEnd').value;
+    var content = document.getElementById('editGoalContent').value.trim();
+    if (!content) return showToast('目標内容を入力してください', true);
+
+    var labelMap = { yearly: '年間目標', monthly: '月間目標', weekly: '週間目標' };
+    var newItem = {
+      id: 'goal_' + Date.now(), type: type, period: labelMap[type] || '目標',
+      content: content, updatedAt: formatDateLocal(new Date()), startDate: startDate, endDate: endDate,
+      progress: progress, nextAction: ''
+    };
+    if (!db.workGoals) db.workGoals = { current: {}, history: [] };
+    db.workGoals.current[type] = newItem;
+    db.workGoals.history.unshift(newItem);
+
+    document.getElementById('goalEditCard').classList.add('hidden');
+    renderHomeGoalsCard();
+    renderUnifiedObjectivesArea();
+    scheduleBgSync('saveGoalItem', newItem.id, {
+      domain: 'work', updateExistingId: '', type: type,
+      content: content, startDate: startDate, endDate: endDate, progress: progress, nextAction: ''
+    });
+    showToast('目標を保存しました');
+  }
+
+  function archiveGoalItem(domain, id) {
+    addArchivedGoalId(id);
+    var store = domain === 'private' ? db.privateGoals : db.workGoals;
+    var found = (store && store.history || []).find(function(g) { return g.id === id; });
+    if (found) found.nextAction = '__ARCHIVED__';
+    renderHomeGoalsCard();
+    renderUnifiedObjectivesArea();
+    scheduleBgSync('saveGoalItem', id, { domain: domain, updateExistingId: id, nextAction: '__ARCHIVED__' });
+    showToast('目標をアーカイブしました');
+  }
+
+  function incrementGoalProgress(domain, id, delta) {
+    var store = domain === 'private' ? db.privateGoals : db.workGoals;
+    var found = (store && store.history || []).find(function(g) { return g.id === id; });
+    if (!found) return;
+    found.progress = Math.min(100, Math.max(0, (Number(found.progress) || 0) + delta));
+    renderHomeGoalsCard();
+    renderUnifiedObjectivesArea();
+    scheduleBgSync('saveGoalItem', id, { domain: domain, updateExistingId: id, progress: found.progress });
+  }
+
+  function renderFutureWorkspace() {
+    renderLifeCountdownClock();
+    renderDreamGenreFilterBar();
+    renderDreamListArea();
+    renderUnifiedObjectivesArea();
+    var credoArea = document.getElementById('futureCredoListArea');
+    if (credoArea) {
+      credoArea.innerHTML = getMyCredosList().map(function(c) {
+        return '<div class="px-2.5 py-1 rounded-lg bg-slate-50 border-l-3 border-l-amber-900 font-medium text-slate-800">' + escapeHtml(c) + '</div>';
+      }).join('');
+    }
+    renderTimeCapsulesArea();
+  }
+
+  function renderWeeklyCoachReview() {
+    var insArea = document.getElementById('autoCorrelationInsightsArea');
+    var compArea = document.getElementById('bestVsStuckDayArea');
+    var stuckArea = document.getElementById('weeklyStuckTasksReviewArea');
+    if (!insArea || !compArea || !stuckArea) return;
+
+    var todayStr = formatDateLocal(new Date());
+    var dayScores = [];
+    for (var i = 0; i < 7; i++) {
+      var ds = getShiftDateStr(todayStr, -i);
+      var wl = (db.workLogs || []).find(function(l) { return l.date === ds; }) || {};
+      var pl = (db.privateLogs || []).find(function(l) { return l.date === ds; }) || {};
+      var doneCnt = (db.todos || []).filter(function(t) { return t.completed && t.completedAt === ds; }).length;
+      var actCnt = (wl.scheduleText ? wl.scheduleText.split('\n').filter(Boolean).length : 0) + (pl.scheduleText ? pl.scheduleText.split('\n').filter(Boolean).length : 0);
+      var cond = Number(pl.condition || wl.condition || 3);
+      dayScores.push({ date: ds, doneCnt: doneCnt, actCnt: actCnt, cond: cond, score: doneCnt * 3 + actCnt + cond });
+    }
+
+    var sorted = dayScores.slice().sort(function(a, b) { return b.score - a.score; });
+    var best = sorted[0];
+    var stuck = sorted[sorted.length - 1];
+
+    var highCondDays = dayScores.filter(function(d) { return d.cond >= 4; });
+    var avgHighDone = highCondDays.length ? (highCondDays.reduce(function(s, d) { return s + d.doneCnt; }, 0) / highCondDays.length).toFixed(1) : '0.0';
+
+    insArea.innerHTML =
+      '<div class="p-2 rounded-lg bg-slate-50 border-l-3 border-l-blue-950 text-[10px] text-slate-800 leading-relaxed">' +
+        '<strong>週間相関サマリー:</strong> 体調スコア4以上の日は平均 <strong>' + avgHighDone + '件</strong> のタスクを完了しています。睡眠とコンディションの確保が最大のレバレッジです。' +
+      '</div>';
+
+    compArea.innerHTML =
+      '<div class="p-2 rounded-lg bg-slate-50 border-l-3 border-l-emerald-900">' +
+        '<div class="font-bold text-emerald-950 font-mono">BEST DAY (' + best.date.slice(5) + ')</div>' +
+        '<div class="text-slate-700 mt-0.5">完了 ' + best.doneCnt + '件 / 活動 ' + best.actCnt + '件</div>' +
+      '</div>' +
+      '<div class="p-2 rounded-lg bg-slate-50 border-l-3 border-l-rose-900">' +
+        '<div class="font-bold text-rose-950 font-mono">LOW DAY (' + stuck.date.slice(5) + ')</div>' +
+        '<div class="text-slate-600 mt-0.5">完了 ' + stuck.doneCnt + '件 / 活動 ' + stuck.actCnt + '件</div>' +
+      '</div>';
+
+    var uncomp = (db.todos || []).filter(function(t) { return !t.completed; }).slice(0, 4);
+    if (uncomp.length === 0) {
+      stuckArea.innerHTML = '<div class="text-[10px] text-emerald-900 font-bold">未完了タスクはありません</div>';
+    } else {
+      stuckArea.innerHTML = '<div class="text-[10px] font-bold text-slate-700">未完了タスクの整理:</div>' +
+        uncomp.map(function(t) {
+          return '<div class="flex items-center justify-between gap-1.5 bg-slate-50 px-2 py-1 rounded border border-slate-200 text-[10px]">' +
+            '<span class="truncate flex-1 font-semibold text-slate-800">' + escapeHtml(t.title) + '</span>' +
+            '<button type="button" onclick="openTodoEditModal(\'' + t.id + '\')" class="px-1.5 py-0.5 rounded bg-blue-950 text-white font-bold shrink-0">分解</button>' +
+            '<button type="button" onclick="toggleTodoComplete(\'' + t.id + '\', event); renderWeeklyCoachReview();" class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold shrink-0">完了</button>' +
+          '</div>';
+        }).join('');
+    }
+  }
+</script>

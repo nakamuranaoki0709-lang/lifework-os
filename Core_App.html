@@ -1,0 +1,514 @@
+<script>
+  window.preserveScroll = window.preserveScroll || function(fn) { if (typeof fn === 'function') fn(); };
+
+  var App = {
+    _listeners: {},
+    mount: function(targetSelector, elementId) {
+      var target = document.querySelector(targetSelector);
+      var el = document.getElementById(elementId);
+      if (target && el) {
+        if (target === el || el.contains(target)) return;
+        if (target.contains(el)) return;
+        target.appendChild(el);
+      }
+    },
+    on: function(eventName, fn) {
+      if (!this._listeners[eventName]) this._listeners[eventName] = [];
+      this._listeners[eventName].push(fn);
+    },
+    emit: function(eventName, data) {
+      (this._listeners[eventName] || []).forEach(function(fn) {
+        try { fn(data); } catch (e) { console.error(e); }
+      });
+    }
+  };
+
+  var currentDomain = 'all';
+  var currentView = 'home';
+  var currentWeekStartDate = getMonday(new Date());
+  var analyticsHabitWeekMonday = getMonday(new Date());
+  var editingTaskInfo = null;
+  var isAppBooted = false;
+  var chartJsLoadingPromise = null;
+
+  var VIEW_CYCLE_ORDER = ['home', 'form', 'timeline', 'future', 'todo', 'analytics'];
+
+  function cycleNextView() {
+    var idx = VIEW_CYCLE_ORDER.indexOf(currentView);
+    var nextView = VIEW_CYCLE_ORDER[(idx + 1) % VIEW_CYCLE_ORDER.length];
+    switchView(nextView);
+  }
+
+  function ensureWorkLog(dateStr) {
+    if (!Array.isArray(db.workLogs)) db.workLogs = [];
+    var log = db.workLogs.find(function(l) { return l.date === dateStr; });
+    if (!log) {
+      log = {
+        date: dateStr, startTime: '', endTime: '', breakMinutes: 80,
+        condition: 3, mood: 3, dayRating: 3, growthScore: 3,
+        scheduleText: '', keep: '', reportKeep: '', problem: '', reportProblem: '',
+        tryText: '', reportTry: '', memo: '', intention: '', quickNote: '', habitMap: {}
+      };
+      db.workLogs.push(log);
+    }
+    return log;
+  }
+
+  function ensurePrivateLog(dateStr) {
+    if (!Array.isArray(db.privateLogs)) db.privateLogs = [];
+    var log = db.privateLogs.find(function(l) { return l.date === dateStr; });
+    if (!log) {
+      log = {
+        date: dateStr, wakeTime: '', bedTime: '', sleepHours: null,
+        sleepQuality: 3, condition: 3, scheduleText: '', memo: '',
+        steps: '', weight: '', bpSys: '', bpDia: '', habitMap: {}
+      };
+      db.privateLogs.push(log);
+    }
+    return log;
+  }
+
+  var getOrCreateWorkLog = ensureWorkLog;
+  var getOrCreatePrivateLog = ensurePrivateLog;
+
+  function computeSleepHoursFloat(bedTime, wakeTime) {
+    if (!bedTime || !wakeTime) return null;
+    var bp = String(bedTime).split(':');
+    var wp = String(wakeTime).split(':');
+    if (bp.length < 2 || wp.length < 2) return null;
+    var bm = Number(bp[0]) * 60 + Number(bp[1]);
+    var wm = Number(wp[0]) * 60 + Number(wp[1]);
+    if (isNaN(bm) || isNaN(wm)) return null;
+    var diff = wm - bm;
+    if (diff < 0) diff += 1440;
+    return parseFloat((diff / 60).toFixed(2));
+  }
+
+  var _bgSyncTimers = {};
+  function scheduleBgSync(actionName, key, payload) {
+    if (_bgSyncTimers[key]) clearTimeout(_bgSyncTimers[key]);
+    _bgSyncTimers[key] = setTimeout(function() {
+      try {
+        if (typeof saveLocalCache === 'function') saveLocalCache();
+        if (typeof enqueueSync === 'function') enqueueSync(actionName, key, payload);
+      } catch (e) { console.error(e); }
+    }, 80);
+  }
+
+  function cleanupFloatingDashboardOverlay() {
+    try {
+      var slotViews = document.getElementById('slot-views');
+      var allNodes = document.querySelectorAll('div, section, aside, footer');
+      for (var i = 0; i < allNodes.length; i++) {
+        var el = allNodes[i];
+        if (!el || el.id === 'todayCustomizerPanel' || el.id === 'homeView' || el.id === 'analyticsView' || el.id === 'mainShellWrap') continue;
+        if (el.closest && el.closest('#todayCustomizerPanel')) continue;
+        var txt = el.textContent || '';
+        if (txt.indexOf('ダッシュボードの表示設定') !== -1 && txt.length < 300) {
+          if (slotViews && !slotViews.contains(el)) {
+            slotViews.appendChild(el);
+          }
+          if (currentView !== 'analytics') {
+            el.classList.add('stray-dashboard-hidden');
+          } else {
+            el.classList.remove('stray-dashboard-hidden');
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  function getCurrentHHMM() {
+    var now = new Date();
+    return ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+  }
+
+  function stampSleep(type) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var hhmm = getCurrentHHMM();
+    var pLog = ensurePrivateLog(dateStr);
+    if (type === 'wake') {
+      pLog.wakeTime = hhmm;
+      var prevP = (db.privateLogs || []).find(function(l) { return l.date === getShiftDateStr(dateStr, -1); }) || {};
+      var sh = computeSleepHoursFloat(prevP.bedTime || '23:30', hhmm);
+      if (sh !== null) {
+        pLog.sleepHours = sh;
+        var wLog = ensureWorkLog(dateStr);
+        wLog.sleepHours = sh;
+        scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+      }
+      showToast('起床を記録しました (' + hhmm + ')');
+    } else {
+      pLog.bedTime = hhmm;
+      showToast('就寝を記録しました (' + hhmm + ')');
+    }
+    refreshAll();
+    if (currentView === 'form' && typeof renderDailyJournalView === 'function') renderDailyJournalView();
+    scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+  }
+
+  function stampAttendance(type) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var hhmm = getCurrentHHMM();
+    var wLog = ensureWorkLog(dateStr);
+    if (type === 'start') {
+      wLog.startTime = hhmm;
+      showToast('出勤を記録しました (' + hhmm + ')');
+    } else {
+      wLog.endTime = hhmm;
+      showToast('退勤を記録しました (' + hhmm + ')');
+    }
+    refreshAll();
+    if (currentView === 'form' && typeof renderDailyJournalView === 'function') renderDailyJournalView();
+    scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+  }
+
+  function updateStampPillStates(dateStr) {
+    var wLog = (db.workLogs || []).find(function(l) { return l.date === dateStr; }) || {};
+    var pLog = (db.privateLogs || []).find(function(l) { return l.date === dateStr; }) || {};
+    var items = [
+      { btnId: 'hdrBtnWake', timeId: 'railSubWake', val: pLog.wakeTime, def: '起床' },
+      { btnId: 'hdrBtnStart', timeId: 'railSubStart', val: wLog.startTime, def: '出勤' },
+      { btnId: 'hdrBtnEnd', timeId: 'railSubEnd', val: wLog.endTime, def: '退勤' },
+      { btnId: 'hdrBtnBed', timeId: 'railSubBed', val: pLog.bedTime, def: '就寝' }
+    ];
+    items.forEach(function(it) {
+      var btn = document.getElementById(it.btnId);
+      var sub = document.getElementById(it.timeId);
+      if (btn) btn.classList.toggle('is-stamped', !!it.val);
+      if (sub) sub.textContent = it.val ? it.val : it.def;
+    });
+  }
+
+  function renderGamificationHeader() {
+    var el = document.getElementById('headerXpBadge');
+    if (el) {
+      var dateInp = document.getElementById('targetDate');
+      var ds = dateInp ? dateInp.value : formatDateLocal(new Date());
+      var d = new Date(ds + 'T12:00:00');
+      var enDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      var wd = enDays[d.getDay()] || '';
+      var openTodos = (db.todos || []).filter(function(t) { return !t.completed; }).length;
+      el.innerHTML =
+        '<span class="text-sky-300 font-bold tracking-wider">' + wd + '</span>' +
+        '<span class="text-slate-500 mx-1.5">/</span>' +
+        '<span class="text-slate-300">OPEN ' + openTodos + '</span>';
+    }
+  }
+
+  // マスター項目管理
+  var KEY_MASTER_OPTIONS = 'worklife_os_master_options_v2';
+  var DEFAULT_MASTER_OPTIONS = {
+    activityCats: ['コア業務', '会議・調整', '作業・事務', '調査・設計', '資格取得', '英語学習', 'プログラミング', '読書・インプット', '運動・健康', '家事・プライベート'],
+    todoProjects: ['社会・仕事', 'プライベート・家族', '教養・知識', '経済・モノ・お金', '健康・美容', '心・精神']
+  };
+  var activeMasterOptionType = 'todoProjects';
+
+  function getMasterOptions() {
+    try {
+      var raw = localStorage.getItem(KEY_MASTER_OPTIONS);
+      if (raw) {
+        var p = JSON.parse(raw);
+        return {
+          activityCats: (Array.isArray(p.activityCats) && p.activityCats.length > 0) ? p.activityCats : DEFAULT_MASTER_OPTIONS.activityCats.slice(),
+          todoProjects: (Array.isArray(p.todoProjects) && p.todoProjects.length > 0) ? p.todoProjects : DEFAULT_MASTER_OPTIONS.todoProjects.slice()
+        };
+      }
+    } catch (e) {}
+    return {
+      activityCats: DEFAULT_MASTER_OPTIONS.activityCats.slice(),
+      todoProjects: DEFAULT_MASTER_OPTIONS.todoProjects.slice()
+    };
+  }
+
+  function saveMasterOptions(opts) {
+    try { localStorage.setItem(KEY_MASTER_OPTIONS, JSON.stringify(opts)); } catch (e) {}
+    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('masterOptions', opts);
+    App.emit('masterOptions:changed', opts);
+  }
+
+  function openMasterOptionManager(type) {
+    activeMasterOptionType = type || 'todoProjects';
+    var modal = document.getElementById('masterOptionModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      renderMasterOptionModal();
+    }
+  }
+
+  function closeMasterOptionManager() {
+    var modal = document.getElementById('masterOptionModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function switchMasterOptionTab(type) {
+    activeMasterOptionType = type;
+    renderMasterOptionModal();
+  }
+
+  function renderMasterOptionModal() {
+    ['activityCats', 'todoProjects'].forEach(function(k) {
+      var btn = document.getElementById(k === 'activityCats' ? 'mOptTabActivity' : 'mOptTabTodo');
+      if (btn) {
+        btn.className = (k === activeMasterOptionType)
+          ? 'py-1.5 rounded-md bg-blue-950 text-white font-bold shadow-2xs transition'
+          : 'py-1.5 rounded-md text-slate-500 hover:text-slate-900 font-semibold transition';
+      }
+    });
+
+    var opts = getMasterOptions();
+    var list = opts[activeMasterOptionType] || [];
+    var listEl = document.getElementById('masterOptionListArea');
+    if (!listEl) return;
+
+    listEl.innerHTML = list.map(function(item, idx) {
+      return '<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs">' +
+        '<span class="font-semibold text-slate-800 truncate">' + escapeHtml(item) + '</span>' +
+        (list.length > 1
+          ? '<button type="button" onclick="deleteMasterOptionItem(' + idx + ')" class="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-semibold text-slate-500 hover:text-rose-800 shrink-0">削除</button>'
+          : '<span class="text-[9px] text-slate-400">必須</span>') +
+      '</div>';
+    }).join('');
+  }
+
+  function addMasterOptionItem(e) {
+    if (e) e.preventDefault();
+    var inp = document.getElementById('masterOptionNewInput');
+    if (!inp) return;
+    var val = inp.value.trim();
+    if (!val) return;
+    var opts = getMasterOptions();
+    var list = opts[activeMasterOptionType] || [];
+    if (list.indexOf(val) !== -1) return showToast('すでに登録されています', true);
+    list.push(val);
+    opts[activeMasterOptionType] = list;
+    inp.value = '';
+    saveMasterOptions(opts);
+    renderMasterOptionModal();
+    showToast('項目を追加しました');
+  }
+
+  function deleteMasterOptionItem(idx) {
+    var opts = getMasterOptions();
+    var list = opts[activeMasterOptionType] || [];
+    if (list.length <= 1) return;
+    list.splice(idx, 1);
+    opts[activeMasterOptionType] = list;
+    saveMasterOptions(opts);
+    renderMasterOptionModal();
+    showToast('項目を削除しました');
+  }
+
+  function getAllKnownHashtags() {
+    var set = {};
+    (db.notes || []).forEach(function(n) {
+      (n.tags || []).forEach(function(t) { if (t) set[t] = (set[t] || 0) + 1; });
+      extractHashtagsFromText(n.content || '').forEach(function(t) { set[t] = (set[t] || 0) + 1; });
+    });
+    (db.todos || []).forEach(function(t) {
+      (t.tags || []).forEach(function(tg) { if (tg) set[tg] = (set[tg] || 0) + 1; });
+      (t.subtasks || []).forEach(function(s) {
+        (s.tags || []).forEach(function(tg) { if (tg) set[tg] = (set[tg] || 0) + 1; });
+      });
+    });
+    return Object.keys(set).sort(function(a, b) { return set[b] - set[a]; });
+  }
+
+  function extractHashtagsFromText(text) {
+    var matches = String(text || '').match(/#[^\s# 、。,.!?！？]+/g) || [];
+    var uniq = [];
+    matches.forEach(function(m) {
+      if (uniq.indexOf(m) === -1) uniq.push(m);
+    });
+    return uniq;
+  }
+
+  var isQuickFabOpen = false;
+
+  function toggleQuickAddFabMenu(forceState) {
+    isQuickFabOpen = (typeof forceState === 'boolean') ? forceState : !isQuickFabOpen;
+    var menu = document.getElementById('leftHandFabMenu');
+    var backdrop = document.getElementById('leftHandFabBackdrop');
+    if (menu) menu.classList.toggle('hidden', !isQuickFabOpen);
+    if (backdrop) backdrop.classList.toggle('hidden', !isQuickFabOpen);
+  }
+
+  function triggerQuickFabAction(actionType) {
+    toggleQuickAddFabMenu(false);
+    if (actionType === 'tweet') {
+      switchView('timeline');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(function() {
+        var inp = document.getElementById('snsQuickPostInput');
+        if (inp) inp.focus();
+      }, 60);
+    } else if (actionType === 'note') {
+      switchView('timeline');
+      if (typeof openNewNoteComposer === 'function') openNewNoteComposer();
+    } else if (actionType === 'activity') {
+      switchView('form');
+      if (typeof switchJournalSubMode === 'function') switchJournalSubMode('edit');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(function() {
+        var inp = document.getElementById('journalActTitleInput');
+        if (inp) inp.focus();
+      }, 60);
+    } else if (actionType === 'todo') {
+      switchView('todo');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(function() {
+        var inp = document.getElementById('fullTodoTitleInput');
+        if (inp) inp.focus();
+      }, 60);
+    } else if (actionType === 'capsule') {
+      switchView('future');
+      if (typeof openTimeCapsuleModal === 'function') openTimeCapsuleModal();
+    }
+  }
+
+  function ensureChartJsLoaded(callback) {
+    if (typeof window.Chart !== 'undefined') {
+      if (callback) callback();
+      return;
+    }
+    if (!chartJsLoadingPromise) {
+      chartJsLoadingPromise = new Promise(function(resolve) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = resolve;
+        document.head.appendChild(s);
+      });
+    }
+    chartJsLoadingPromise.then(function() {
+      if (callback) callback();
+    });
+  }
+
+  function shiftTargetDate(offsetDays) {
+    var inp = document.getElementById('targetDate');
+    if (!inp || !inp.value) return;
+    inp.value = getShiftDateStr(inp.value, offsetDays);
+    onTargetDateChanged();
+  }
+
+  function onTargetDateChanged() {
+    editingTaskInfo = null;
+    refreshAll();
+    renderCurrentView();
+  }
+
+  function switchView(view) {
+    currentView = view;
+    var views = [
+      { key: 'home', btnId: 'btnViewHome', viewId: 'homeView' },
+      { key: 'form', btnId: 'btnViewForm', viewId: 'formView' },
+      { key: 'timeline', btnId: 'btnViewTimeline', viewId: 'timelineView' },
+      { key: 'future', btnId: 'btnViewFuture', viewId: 'futureView' },
+      { key: 'todo', btnId: 'btnViewTodo', viewId: 'todoView' },
+      { key: 'analytics', btnId: 'btnViewAnalytics', viewId: 'analyticsView' }
+    ];
+
+    views.forEach(function(v) {
+      var btn = document.getElementById(v.btnId);
+      var el = document.getElementById(v.viewId);
+      var active = (view === v.key);
+      if (btn) {
+        btn.className = 'w-full py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition text-[9px] ' + (active ? 'rail-tab-active' : 'rail-tab-inactive');
+      }
+      if (el) el.classList.toggle('hidden', !active);
+    });
+
+    cleanupFloatingDashboardOverlay();
+    renderCurrentView();
+    App.emit('view:changed:' + view);
+  }
+
+  function renderCurrentView() {
+    renderGamificationHeader();
+    if (currentView === 'home') {
+      if (typeof renderHomeCredoBanner === 'function') renderHomeCredoBanner();
+      if (typeof renderHomeGoalsCard === 'function') renderHomeGoalsCard();
+      if (typeof renderHomePrevTryCard === 'function') renderHomePrevTryCard();
+      if (typeof applyTodayLayoutOrderAndVisibility === 'function') applyTodayLayoutOrderAndVisibility();
+      if (typeof renderHomeTodoPreview === 'function') renderHomeTodoPreview();
+      if (typeof fetchAndRenderHomeCalendar === 'function') fetchAndRenderHomeCalendar(false);
+    }
+    if (currentView === 'form' && typeof renderDailyJournalView === 'function') {
+      renderDailyJournalView();
+    }
+    if (currentView === 'timeline' && typeof renderNotesWorkspace === 'function') {
+      renderNotesWorkspace();
+    }
+    if (currentView === 'future' && typeof renderFutureWorkspace === 'function') {
+      renderFutureWorkspace();
+    }
+    if (currentView === 'todo' && typeof renderFullTodoView === 'function') {
+      renderFullTodoView();
+    }
+    if (currentView === 'analytics') {
+      if (typeof renderWeeklyCoachReview === 'function') renderWeeklyCoachReview();
+      if (typeof renderAnalytics === 'function') {
+        ensureChartJsLoaded(function() { renderAnalytics(); });
+      }
+    }
+    setTimeout(cleanupFloatingDashboardOverlay, 50);
+  }
+
+  function refreshAll() {
+    var dateInp = document.getElementById('targetDate');
+    var dateStr = dateInp ? dateInp.value : formatDateLocal(new Date());
+    var wLog = (db.workLogs || []).find(function(l) { return l.date === dateStr; });
+    var pLog = (db.privateLogs || []).find(function(l) { return l.date === dateStr; });
+    updateStampPillStates(dateStr);
+    renderGamificationHeader();
+    if (typeof renderHomeGoalsCard === 'function') renderHomeGoalsCard();
+    if (typeof renderHomePrevTryCard === 'function') renderHomePrevTryCard();
+    App.emit('data:loaded', { dateStr: dateStr, wLog: wLog, pLog: pLog });
+  }
+
+  function bootAppFast() {
+    if (isAppBooted) return;
+    isAppBooted = true;
+
+    var todayStr = formatDateLocal(new Date());
+    var dateInp = document.getElementById('targetDate');
+    if (dateInp && !dateInp.value) dateInp.value = todayStr;
+
+    if (typeof loadLocalCache === 'function') loadLocalCache();
+    cleanupFloatingDashboardOverlay();
+    refreshAll();
+    switchView('home');
+
+    try {
+      var obs = new MutationObserver(function() { cleanupFloatingDashboardOverlay(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+
+    setTimeout(function() {
+      if (typeof syncAndFetchBundle === 'function') syncAndFetchBundle(false);
+      renderGamificationHeader();
+      cleanupFloatingDashboardOverlay();
+    }, 100);
+  }
+
+  window.addEventListener('DOMContentLoaded', bootAppFast);
+  window.addEventListener('online', function() {
+    if (typeof updateSyncBadge === 'function') updateSyncBadge();
+    if (typeof processSyncQueue === 'function') processSyncQueue(false);
+    showToast('オンライン復帰・自動同期中');
+  });
+  window.addEventListener('offline', function() {
+    if (typeof updateSyncBadge === 'function') updateSyncBadge();
+    showToast('オフラインモード（変更は端末に保存されます）', true);
+  });
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      if (typeof updateSyncBadge === 'function') updateSyncBadge();
+      if (navigator.onLine && typeof processSyncQueue === 'function' && Array.isArray(syncQueue) && syncQueue.length > 0) {
+        processSyncQueue(false);
+      }
+    }
+  });
+</script>

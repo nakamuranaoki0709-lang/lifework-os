@@ -1,0 +1,8 @@
+_backup/
+_backup*
+*.bak
+*.bak*
+backend_gas/
+frontend_html/
+rest_bundle.txt
+.api_token

@@ -1,0 +1,1129 @@
+<!-- Todayページ用：前回のTryカード -->
+<div id="homePrevTryCard" onclick="switchView('form')" class="card-surface p-2.5 border-l-3 border-l-amber-600 space-y-1 cursor-pointer hover:border-blue-950 transition hidden">
+  <div class="flex items-center justify-between text-[9px] font-mono text-slate-500 uppercase tracking-wider">
+    <span class="font-bold text-amber-800"><i class="fa-solid fa-arrow-turn-up rotate-90 mr-1"></i>Previous Try</span>
+    <span id="homePrevTryDate" class="font-bold text-slate-700"></span>
+  </div>
+  <div id="homePrevTryText" class="text-xs font-medium text-slate-800 leading-snug"></div>
+</div>
+
+<div id="dailyJournalSection" class="space-y-2.5">
+
+  <!-- 上部切替セグメント（3モード：今日の記録 / アーカイブ / 週次・月次レビュー） -->
+  <div class="grid grid-cols-3 gap-1 bg-slate-200/80 p-1 rounded-xl text-[11px] font-bold">
+    <button type="button" id="jModeEditBtn" onclick="switchJournalSubMode('edit')" class="py-1.5 rounded-lg bg-blue-950 text-white shadow-2xs transition">
+      今日の記録
+    </button>
+    <button type="button" id="jModeListBtn" onclick="switchJournalSubMode('list')" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+      記録一覧
+    </button>
+    <button type="button" id="jModeReviewBtn" onclick="switchJournalSubMode('review')" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+      週次レビュー
+    </button>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- モードA：今日の記録入力 -->
+  <!-- ========================================================= -->
+  <div id="journalEditWorkspace" class="space-y-2.5">
+
+    <!-- 1日のまとめサマリーカード -->
+    <div id="journalHeroSummaryCard" class="rounded-xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white p-3.5 shadow-sm space-y-2 border border-indigo-900/50"></div>
+
+    <!-- 01 MORNING -->
+    <div class="card-surface p-3 space-y-2 border-t-2 border-t-indigo-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+        <div class="flex items-baseline gap-2">
+          <span class="text-[9px] font-mono tracking-widest text-indigo-900 font-bold">01 MORNING</span>
+          <h2 class="font-bold text-xs text-slate-900">コンディション・バイタル・意図</h2>
+        </div>
+        <span id="journalSleepCalcBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-100">SLEEP --h--m</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <label class="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
+          <span class="text-amber-900 font-bold">起床</span>
+          <input type="time" id="jWakeTimeInput" onchange="updateJournalTimeField('wakeTime', this.value)" class="font-mono font-bold text-slate-900 bg-transparent outline-none">
+        </label>
+        <label class="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
+          <span class="text-blue-950 font-bold">出勤</span>
+          <input type="time" id="jStartTimeInput" onchange="updateJournalTimeField('startTime', this.value)" class="font-mono font-bold text-slate-900 bg-transparent outline-none">
+        </label>
+      </div>
+
+      <!-- コンパクトバイタル入力（歩数・体重・血圧） -->
+      <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+        <label class="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-lg px-2 py-1">
+          <span class="text-slate-500 font-semibold">歩数</span>
+          <div class="flex items-center gap-0.5">
+            <input type="number" id="jStepsInput" onchange="updateJournalVitalField('steps', this.value)" placeholder="8000" class="w-11 bg-transparent font-mono font-bold text-slate-900 text-right outline-none">
+            <span class="text-slate-400 text-[9px]">歩</span>
+          </div>
+        </label>
+        <label class="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-lg px-2 py-1">
+          <span class="text-slate-500 font-semibold">体重</span>
+          <div class="flex items-center gap-0.5">
+            <input type="number" id="jWeightInput" step="0.1" onchange="updateJournalVitalField('weight', this.value)" placeholder="65.0" class="w-10 bg-transparent font-mono font-bold text-slate-900 text-right outline-none">
+            <span class="text-slate-400 text-[9px]">kg</span>
+          </div>
+        </label>
+        <div class="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-lg px-2 py-1">
+          <span class="text-slate-500 font-semibold">血圧</span>
+          <div class="flex items-center gap-0.5">
+            <input type="number" id="jBpSysInput" onchange="updateJournalVitalField('bpSys', this.value)" placeholder="120" class="w-7 bg-transparent font-mono font-bold text-slate-900 text-center outline-none">
+            <span class="text-slate-400">/</span>
+            <input type="number" id="jBpDiaInput" onchange="updateJournalVitalField('bpDia', this.value)" placeholder="80" class="w-7 bg-transparent font-mono font-bold text-slate-900 text-center outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- スリム1行評価：睡眠の質 ＆ 体調 -->
+      <div class="divide-y divide-slate-100">
+        <div class="slim-rating-row">
+          <div class="flex items-baseline gap-1.5 min-w-0">
+            <span class="text-[11px] font-bold text-slate-800">睡眠の質</span>
+            <span class="text-[9px] text-slate-400">浅い—深い</span>
+          </div>
+          <div id="jSleepQualityGroup" class="slim-seg-group"></div>
+        </div>
+        <div class="slim-rating-row">
+          <div class="flex items-baseline gap-1.5 min-w-0">
+            <span class="text-[11px] font-bold text-slate-800">体調</span>
+            <span class="text-[9px] text-slate-400">低調—万全</span>
+          </div>
+          <div id="jMorningCondGroup" class="slim-seg-group"></div>
+        </div>
+      </div>
+
+      <div>
+        <input type="text" id="jDailyIntentionInput" onchange="updateJournalTextField('intention', this.value)" placeholder="今日の意図・テーマ（例：午前中に企画の構成を固める）..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50/70 focus:bg-white outline-none focus:border-indigo-900 font-medium">
+      </div>
+    </div>
+
+    <!-- 02 DAYTIME LOG（入力フォーム ＋ カレンダー予定ワンタップ取込 ＋ 本日のタイムライン） -->
+    <div class="card-surface p-3 space-y-2 border-t-2 border-t-teal-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 gap-1">
+        <div class="flex items-baseline gap-2">
+          <span class="text-[9px] font-mono tracking-widest text-teal-900 font-bold">02 DAYTIME LOG</span>
+          <h2 class="font-bold text-xs text-slate-900">行動・思考の記録</h2>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" id="jImportCalBtn" onclick="importCalendarEventsToJournal()" class="px-2 py-0.5 rounded bg-sky-900 hover:bg-sky-800 text-white text-[9px] font-bold flex items-center gap-1 transition">
+            <i class="fa-regular fa-calendar-plus"></i>予定取込
+          </button>
+          <span id="jDayLoggedTotalBadge" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-900 border border-teal-200">計 0h00m</span>
+        </div>
+      </div>
+
+      <form onsubmit="addJournalActivityLog(event)" class="space-y-1.5">
+        <div class="flex items-center gap-1.5 text-[10px]">
+          <input type="time" id="journalActStartInput" class="px-2 py-1 border border-slate-200 rounded-lg bg-slate-50 font-mono font-bold text-slate-800 outline-none">
+          <span class="text-slate-400">—</span>
+          <input type="time" id="journalActEndInput" class="px-2 py-1 border border-slate-200 rounded-lg bg-slate-50 font-mono font-bold text-slate-800 outline-none">
+          <select id="journalActCatSelect" class="flex-1 min-w-0 px-2 py-1 border border-slate-200 rounded-lg bg-slate-50 font-bold text-teal-950 outline-none"></select>
+          <button type="button" onclick="openMasterOptionManager('activityCats')" class="px-2 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-900" title="カテゴリ編集"><i class="fa-solid fa-gear text-[9px]"></i></button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="submit" class="px-3 py-1.5 bg-teal-900 hover:bg-teal-800 text-white rounded-lg text-[10px] font-bold shrink-0">記録</button>
+          <input type="text" id="journalActTitleInput" placeholder="取り組んだ内容・気づき（#タグ可）..." class="flex-1 min-w-0 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white outline-none focus:border-teal-900">
+        </div>
+      </form>
+
+      <!-- 本日の記録済みタイムライン -->
+      <div id="journalTodayTimelineArea" class="space-y-1 pt-1 border-t border-slate-100"></div>
+    </div>
+
+    <!-- 03 EVENING REFLECTION -->
+    <div class="card-surface p-3 space-y-2 border-t-2 border-t-rose-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+        <div class="flex items-baseline gap-2">
+          <span class="text-[9px] font-mono tracking-widest text-rose-900 font-bold">03 EVENING</span>
+          <h2 class="font-bold text-xs text-slate-900">1日の振り返り・日記</h2>
+        </div>
+        <span id="journalWorkCalcBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-100">WORK --h--m</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <label class="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
+          <span class="text-rose-900 font-bold">退勤</span>
+          <input type="time" id="jEndTimeInput" onchange="updateJournalTimeField('endTime', this.value)" class="font-mono font-bold text-slate-900 bg-transparent outline-none">
+        </label>
+        <label class="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
+          <span class="text-indigo-900 font-bold">就寝</span>
+          <input type="time" id="jBedTimeInput" onchange="updateJournalTimeField('bedTime', this.value)" class="font-mono font-bold text-slate-900 bg-transparent outline-none">
+        </label>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <div class="slim-rating-row">
+          <div class="flex items-baseline gap-1.5 min-w-0">
+            <span class="text-[11px] font-bold text-slate-800">総合評価</span>
+            <span class="text-[9px] text-slate-400">低調—最高</span>
+          </div>
+          <div id="jDayRatingGroup" class="slim-seg-group"></div>
+        </div>
+        <div class="slim-rating-row">
+          <div class="flex items-baseline gap-1.5 min-w-0">
+            <span class="text-[11px] font-bold text-slate-800">気分</span>
+            <span class="text-[9px] text-slate-400">沈み—快調</span>
+          </div>
+          <div id="jDayMoodGroup" class="slim-seg-group"></div>
+        </div>
+      </div>
+
+      <!-- 本日の1人SNS投稿からワンタップ引用バー -->
+      <div id="jSnsQuoteQuickBar" class="hidden p-2 rounded-lg bg-indigo-50/70 border border-indigo-200/80 space-y-1">
+        <div class="flex items-center justify-between text-[9px] font-bold text-indigo-950">
+          <span><i class="fa-solid fa-hashtag mr-1"></i>本日の1人SNS投稿を日報へ引用</span>
+          <span class="text-slate-400 font-normal">タップで追記</span>
+        </div>
+        <div id="jSnsQuoteChipsArea" class="space-y-1"></div>
+      </div>
+
+      <div class="space-y-2 text-xs pt-0.5">
+        <div class="pl-2.5 border-l-4 border-emerald-800">
+          <label class="block text-[9px] font-mono uppercase tracking-wider font-bold text-emerald-900 mb-0.5">KEEP — 良かったこと・継続</label>
+          <textarea id="jKeepInput" rows="2" onchange="updateJournalTextField('keep', this.value)" placeholder="今日うまくいったこと、感謝したいこと..." class="w-full px-2.5 py-1 border border-slate-200 rounded-lg bg-slate-50/60 focus:bg-white outline-none focus:border-emerald-800 leading-snug"></textarea>
+        </div>
+        <div class="pl-2.5 border-l-4 border-rose-900">
+          <label class="block text-[9px] font-mono uppercase tracking-wider font-bold text-rose-900 mb-0.5">PROBLEM — 課題・改善点</label>
+          <textarea id="jProblemInput" rows="2" onchange="updateJournalTextField('problem', this.value)" placeholder="詰まったこと、時間がかかった原因..." class="w-full px-2.5 py-1 border border-slate-200 rounded-lg bg-slate-50/60 focus:bg-white outline-none focus:border-rose-900 leading-snug"></textarea>
+        </div>
+        <div class="pl-2.5 border-l-4 border-blue-900">
+          <div class="flex items-center justify-between mb-0.5">
+            <label class="text-[9px] font-mono uppercase tracking-wider font-bold text-blue-950">TRY — 明日試す一歩</label>
+            <button type="button" onclick="sendJournalTryToTodo()" class="text-[9px] font-bold text-blue-900 hover:underline">明日のタスクへ送る</button>
+          </div>
+          <textarea id="jTryInput" rows="2" onchange="updateJournalTextField('tryText', this.value)" placeholder="明日意識する具体的な一歩..." class="w-full px-2.5 py-1 border border-slate-200 rounded-lg bg-slate-50/60 focus:bg-white outline-none focus:border-blue-900 leading-snug"></textarea>
+        </div>
+        <div class="pl-2.5 border-l-4 border-indigo-900">
+          <label class="block text-[9px] font-mono uppercase tracking-wider font-bold text-indigo-950 mb-0.5">DAILY NOTE — 自由日記</label>
+          <textarea id="jMemoInput" rows="2" onchange="updateJournalTextField('memo', this.value)" placeholder="今日という1日のまとめ、残しておきたい思考..." class="w-full px-2.5 py-1 border border-slate-200 rounded-lg bg-slate-50/60 focus:bg-white outline-none focus:border-indigo-900 leading-snug"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- モードB：スタイリッシュ記録一覧（アーカイブ） -->
+  <!-- ========================================================= -->
+  <div id="journalListWorkspace" class="space-y-2.5 hidden">
+    <div class="card-surface p-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-1 text-[10px] font-bold" id="journalArchiveFilterBar">
+        <button type="button" data-jf="all" onclick="setJournalArchiveFilter('all')" class="px-2.5 py-1 rounded-md bg-blue-950 text-white">すべて</button>
+        <button type="button" data-jf="high" onclick="setJournalArchiveFilter('high')" class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700">高評価 (4+)</button>
+        <button type="button" data-jf="kpt" onclick="setJournalArchiveFilter('kpt')" class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700">振り返りあり</button>
+      </div>
+      <span id="journalArchiveCountBadge" class="text-[10px] font-mono font-bold text-blue-950">0 DAYS</span>
+    </div>
+
+    <div id="journalStyledCardsList" class="space-y-2.5"></div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- モードC：週次・月次レビュー（自動ダイジェスト＆AIコーチプロンプト） -->
+  <!-- ========================================================= -->
+  <div id="journalReviewWorkspace" class="space-y-2.5 hidden">
+    <div class="card-surface p-3 space-y-2.5 border-t-2 border-t-indigo-950">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
+          <button type="button" id="jRevSpanWeekBtn" onclick="setJournalReviewSpan('week')" class="px-2.5 py-1 rounded-md bg-blue-950 text-white">週間レビュー</button>
+          <button type="button" id="jRevSpanMonthBtn" onclick="setJournalReviewSpan('month')" class="px-2.5 py-1 rounded-md text-slate-600">月間レビュー</button>
+        </div>
+        <div class="flex items-center gap-1 font-mono text-[10px] font-bold">
+          <button type="button" onclick="shiftJournalReviewCursor(-1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="jRevPeriodLabel" class="px-1.5 text-slate-900"></span>
+          <button type="button" onclick="shiftJournalReviewCursor(1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <!-- 4大KPI自動集計カード -->
+      <div id="jRevKpiGrid" class="grid grid-cols-2 gap-1.5"></div>
+
+      <!-- AIコーチ用プロンプト一括コピー -->
+      <div class="p-2.5 rounded-xl bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 text-white flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-[10px] font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>AIパーソナル振り返り</div>
+          <div class="text-[9px] text-slate-300 truncate">期間中のバイタル・KPT・SNS思考を構造化コピー</div>
+        </div>
+        <button type="button" onclick="copyPeriodReviewPrompt()" class="px-2.5 py-1.5 rounded-lg bg-white text-blue-950 hover:bg-sky-50 text-[10px] font-extrabold shrink-0 transition active:scale-95">
+          プロンプトコピー
+        </button>
+      </div>
+    </div>
+
+    <!-- 期間内のKPT & 学びダイジェスト -->
+    <div class="card-surface p-3 space-y-2 border-t-2 border-t-emerald-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+        <h3 class="text-xs font-bold text-slate-900">期間ハイライト（KEEP / PROBLEM / TRY / 思考）</h3>
+        <span id="jRevHighlightCount" class="text-[9px] font-mono font-bold text-emerald-900">0 ITEMS</span>
+      </div>
+      <div id="jRevHighlightsList" class="space-y-1.5 max-h-72 overflow-y-auto pr-0.5"></div>
+    </div>
+
+    <!-- 週次・月次総括メモ保存 -->
+    <div class="card-surface p-3 space-y-2 border-t-2 border-t-amber-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-1">
+        <h3 class="text-xs font-bold text-slate-900">期間総括・次期への戦略メモ</h3>
+        <span class="text-[9px] font-mono text-slate-400">AUTO-SYNC</span>
+      </div>
+      <textarea id="jRevSummaryTextarea" rows="3" onchange="saveJournalPeriodSummary(this.value)" placeholder="この期間の総括、うまくいった習慣、次の期間で変えること..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50/60 focus:bg-white outline-none focus:border-amber-900 leading-relaxed"></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  App.mount('#slot-home-prevtry', 'homePrevTryCard');
+  App.mount('#slot-journal-main', 'dailyJournalSection');
+
+  var journalSubMode = 'edit';
+  var journalArchiveFilter = 'all';
+  var journalReviewSpan = 'week';
+  var journalReviewAnchorDate = formatDateLocal(new Date());
+
+  function renderHomePrevTryCard() {
+    var card = document.getElementById('homePrevTryCard');
+    var dateEl = document.getElementById('homePrevTryDate');
+    var txtEl = document.getElementById('homePrevTryText');
+    if (!card || !dateEl || !txtEl) return;
+
+    var dateInp = document.getElementById('targetDate');
+    var curDs = (dateInp && dateInp.value) ? dateInp.value : formatDateLocal(new Date());
+    var sorted = (db.workLogs || []).slice().sort(function(a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
+    var prev = sorted.find(function(l) {
+      var t = l.tryText || l.reportTry || '';
+      return l.date && l.date < curDs && t.trim() !== '';
+    });
+
+    if (prev) {
+      dateEl.textContent = prev.date.replace(/-/g, '.');
+      txtEl.textContent = prev.tryText || prev.reportTry || '';
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  }
+
+  function switchJournalSubMode(mode) {
+    journalSubMode = mode;
+    var modes = [
+      { key: 'edit', btnId: 'jModeEditBtn', wsId: 'journalEditWorkspace' },
+      { key: 'list', btnId: 'jModeListBtn', wsId: 'journalListWorkspace' },
+      { key: 'review', btnId: 'jModeReviewBtn', wsId: 'journalReviewWorkspace' }
+    ];
+    modes.forEach(function(m) {
+      var btn = document.getElementById(m.btnId);
+      var ws = document.getElementById(m.wsId);
+      var active = (m.key === mode);
+      if (btn) {
+        btn.className = active
+          ? 'py-1.5 rounded-lg bg-blue-950 text-white shadow-2xs transition'
+          : 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      }
+      if (ws) ws.classList.toggle('hidden', !active);
+    });
+
+    if (mode === 'list') {
+      renderStylishJournalArchive();
+    } else if (mode === 'review') {
+      renderJournalPeriodReview();
+    } else {
+      renderDailyJournalView();
+    }
+  }
+
+  function setJournalArchiveFilter(f) {
+    journalArchiveFilter = f;
+    var bar = document.getElementById('journalArchiveFilterBar');
+    if (bar) {
+      bar.querySelectorAll('button').forEach(function(b) {
+        var act = b.getAttribute('data-jf') === f;
+        b.className = act ? 'px-2.5 py-1 rounded-md bg-blue-950 text-white' : 'px-2.5 py-1 rounded-md bg-slate-100 text-slate-700';
+      });
+    }
+    renderStylishJournalArchive();
+  }
+
+  function openJournalDateForEdit(dateStr) {
+    var inp = document.getElementById('targetDate');
+    if (inp) inp.value = dateStr;
+    refreshAll();
+    switchJournalSubMode('edit');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function getWeekdayEn(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr + 'T12:00:00');
+    return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()] || '';
+  }
+
+  function computeLoggedActivityMinutes(wLog, pLog) {
+    var totalMin = 0;
+    var allLines = [];
+    if (wLog && wLog.scheduleText) allLines = allLines.concat(wLog.scheduleText.split('\n').filter(Boolean));
+    if (pLog && pLog.scheduleText) allLines = allLines.concat(pLog.scheduleText.split('\n').filter(Boolean));
+    allLines.forEach(function(line) {
+      var m = line.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+      if (m) {
+        var s = m[1].split(':'), e = m[2].split(':');
+        var diff = (parseInt(e[0], 10) * 60 + parseInt(e[1], 10)) - (parseInt(s[0], 10) * 60 + parseInt(s[1], 10));
+        if (diff < 0) diff += 1440;
+        totalMin += diff;
+      }
+    });
+    return totalMin;
+  }
+
+  function renderJournalHeroSummary(dateStr, wLog, pLog, sleepDur, workDur) {
+    var hero = document.getElementById('journalHeroSummaryCard');
+    if (!hero) return;
+    var wd = getWeekdayEn(dateStr);
+    var dotDate = dateStr.replace(/-/g, '.');
+    var rating = Number(wLog.dayRating || wLog.growthScore || 3);
+    var cond = Number(pLog.condition || wLog.condition || 3);
+    var mood = Number(wLog.mood || 3);
+    var intentionStr = wLog.intention || wLog.quickNote || '';
+
+    var actLines = (wLog.scheduleText ? wLog.scheduleText.split('\n').filter(Boolean).length : 0) +
+                   (pLog.scheduleText ? pLog.scheduleText.split('\n').filter(Boolean).length : 0);
+    var snsCount = (db.notes || []).filter(function(n) { return n.createdAt === dateStr; }).length;
+    var doneCount = (db.todos || []).filter(function(t) { return t.completed && t.completedAt === dateStr; }).length;
+
+    var totalActMin = computeLoggedActivityMinutes(wLog, pLog);
+    var totBadge = document.getElementById('jDayLoggedTotalBadge');
+    if (totBadge) {
+      totBadge.textContent = '計 ' + Math.floor(totalActMin / 60) + 'h' + ('0' + (totalActMin % 60)).slice(-2) + 'm';
+    }
+
+    hero.innerHTML =
+      '<div class="flex items-baseline justify-between gap-2">' +
+        '<div class="flex items-baseline gap-2">' +
+          '<span class="text-lg font-mono font-bold tracking-tight">' + escapeHtml(dotDate) + '</span>' +
+          '<span class="text-[10px] font-mono font-bold tracking-widest text-sky-300">' + wd + '</span>' +
+        '</div>' +
+        '<div class="flex items-center gap-2 font-mono text-[10px] text-slate-300">' +
+          '<span>RATE <strong class="text-amber-300">' + rating + '</strong>/5</span>' +
+          '<span class="text-slate-600">|</span>' +
+          '<span>COND <strong class="text-emerald-300">' + cond + '</strong>/5</span>' +
+          '<span class="text-slate-600">|</span>' +
+          '<span>MOOD <strong class="text-sky-300">' + mood + '</strong>/5</span>' +
+        '</div>' +
+      '</div>' +
+      (intentionStr
+        ? '<div class="pl-2.5 border-l-2 border-amber-400 text-[11px] font-medium text-amber-100">' + escapeHtml(intentionStr) + '</div>'
+        : '') +
+      '<div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-white/10 font-mono text-[10px]">' +
+        '<div><div class="text-[8px] text-slate-400">WAKE / BED</div><div class="font-semibold text-slate-100">' + (pLog.wakeTime || '--:--') + ' / ' + (pLog.bedTime || '--:--') + '</div></div>' +
+        '<div><div class="text-[8px] text-slate-400">IN / OUT</div><div class="font-semibold text-slate-100">' + (wLog.startTime || '--:--') + ' / ' + (wLog.endTime || '--:--') + '</div></div>' +
+        '<div><div class="text-[8px] text-slate-400">SLEEP / WORK</div><div class="font-semibold text-sky-200">' + (pLog.wakeTime ? sleepDur : '--') + ' / ' + ((wLog.startTime && wLog.endTime) ? workDur : '--') + '</div></div>' +
+        '<div><div class="text-[8px] text-slate-400">LOG / SNS / DONE</div><div class="font-semibold text-emerald-200">' + actLines + ' / ' + snsCount + ' / ' + doneCount + '</div></div>' +
+      '</div>';
+  }
+
+  function importCalendarEventsToJournal() {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var btn = document.getElementById('jImportCalBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>取得中';
+    }
+
+    function applyEventsToLog(evs) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-regular fa-calendar-plus"></i>予定取込';
+      }
+      var timedEvs = (evs || []).filter(function(e) { return e.date === dateStr && !e.isAllDay && e.startTime && e.endTime; });
+      if (timedEvs.length === 0) {
+        showToast('この日の時間指定カレンダー予定はありません', true);
+        return;
+      }
+      var wLog = ensureWorkLog(dateStr);
+      var existingLines = wLog.scheduleText ? wLog.scheduleText.split('\n').filter(Boolean) : [];
+      var addedCount = 0;
+      timedEvs.forEach(function(ev) {
+        var line = ev.startTime + ' - ' + ev.endTime + ' [予定] ' + (ev.title || '(無題)');
+        if (existingLines.indexOf(line) === -1) {
+          existingLines.push(line);
+          addedCount++;
+        }
+      });
+      if (addedCount === 0) {
+        showToast('すべてのカレンダー予定は既に取り込み済みです');
+        return;
+      }
+      existingLines.sort();
+      wLog.scheduleText = existingLines.join('\n');
+      renderDailyJournalView();
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+      showToast('カレンダー予定 ' + addedCount + '件を取り込みました');
+    }
+
+    if (typeof calRangeEventsCache !== 'undefined' && calRangeEventsCache[dateStr + '_' + dateStr]) {
+      applyEventsToLog(calRangeEventsCache[dateStr + '_' + dateStr]);
+      return;
+    }
+
+    if (typeof google !== 'undefined' && google.script && google.script.run && navigator.onLine) {
+      google.script.run
+        .withSuccessHandler(function(res) {
+          var evs = (res && res.ok) ? (res.events || []) : [];
+          if (typeof calRangeEventsCache !== 'undefined') calRangeEventsCache[dateStr + '_' + dateStr] = evs;
+          applyEventsToLog(evs);
+        })
+        .withFailureHandler(function() {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-regular fa-calendar-plus"></i>予定取込';
+          }
+          showToast('カレンダー取得に失敗しました', true);
+        })
+        .getCalendarEventsForRange(dateStr, dateStr);
+    } else {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-regular fa-calendar-plus"></i>予定取込';
+      }
+      showToast('オフラインのためカレンダー取得できません', true);
+    }
+  }
+
+  function renderJournalTodayTimeline(dateStr, wLog, pLog) {
+    var area = document.getElementById('journalTodayTimelineArea');
+    if (!area) return;
+
+    var wLines = wLog.scheduleText ? wLog.scheduleText.split('\n').filter(Boolean) : [];
+    var pLines = pLog.scheduleText ? pLog.scheduleText.split('\n').filter(Boolean) : [];
+    var dayNotes = (db.notes || []).filter(function(n) { return n.createdAt === dateStr; });
+    var dayTodos = (db.todos || []).filter(function(t) { return t.completed && t.completedAt === dateStr; });
+
+    var rows = [];
+    wLines.forEach(function(line, idx) {
+      rows.push(
+        '<div class="flex items-center justify-between gap-2 px-2 py-1 rounded-md bg-slate-50 border border-slate-200/70 text-[11px]">' +
+          '<span class="font-medium text-slate-800 break-words flex-1">' + escapeHtml(line) + '</span>' +
+          '<button type="button" onclick="deleteJournalActivityLine(\'work\', ' + idx + ')" class="text-slate-300 hover:text-rose-700 px-1 shrink-0" title="削除"><i class="fa-solid fa-xmark"></i></button>' +
+        '</div>'
+      );
+    });
+    pLines.forEach(function(line, idx) {
+      rows.push(
+        '<div class="flex items-center justify-between gap-2 px-2 py-1 rounded-md bg-indigo-50/60 border border-indigo-200/70 text-[11px]">' +
+          '<span class="font-medium text-slate-800 break-words flex-1">' + escapeHtml(line) + '</span>' +
+          '<button type="button" onclick="deleteJournalActivityLine(\'private\', ' + idx + ')" class="text-slate-300 hover:text-rose-700 px-1 shrink-0" title="削除"><i class="fa-solid fa-xmark"></i></button>' +
+        '</div>'
+      );
+    });
+    dayNotes.forEach(function(n) {
+      var txt = n.title ? (n.title + '：' + (n.content || '')) : (n.content || '');
+      rows.push(
+        '<div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-50 border border-slate-200/60 text-[10px] text-slate-700">' +
+          '<span class="px-1 py-0.2 rounded bg-blue-950 text-white font-mono text-[8px] font-bold shrink-0">SNS</span>' +
+          '<span class="truncate flex-1">' + escapeHtml(txt) + '</span>' +
+        '</div>'
+      );
+    });
+    dayTodos.forEach(function(t) {
+      rows.push(
+        '<div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50/60 border border-emerald-200/60 text-[10px] text-slate-700">' +
+          '<span class="px-1 py-0.2 rounded bg-emerald-900 text-white font-mono text-[8px] font-bold shrink-0">DONE</span>' +
+          '<span class="truncate flex-1">' + escapeHtml(t.title) + '</span>' +
+        '</div>'
+      );
+    });
+
+    if (rows.length === 0) {
+      area.innerHTML = '<div class="text-[10px] text-slate-400 text-center py-1">まだ本日の行動ログはありません</div>';
+    } else {
+      area.innerHTML = rows.join('');
+    }
+
+    // 振り返り用：本日の1人SNS投稿ワンタップ引用バー更新
+    var quoteBar = document.getElementById('jSnsQuoteQuickBar');
+    var quoteChips = document.getElementById('jSnsQuoteChipsArea');
+    if (quoteBar && quoteChips) {
+      if (dayNotes.length === 0) {
+        quoteBar.classList.add('hidden');
+      } else {
+        quoteBar.classList.remove('hidden');
+        quoteChips.innerHTML = dayNotes.slice(0, 4).map(function(n) {
+          var preview = (n.title ? n.title + ' ' : '') + (n.content || '');
+          return '<div class="flex items-center justify-between gap-1.5 bg-white px-2 py-1 rounded border border-indigo-200/80 text-[10px]">' +
+            '<span class="truncate text-slate-700 flex-1">' + escapeHtml(preview) + '</span>' +
+            '<div class="flex items-center gap-1 shrink-0">' +
+              '<button type="button" onclick="quoteSnsNoteToJournal(\'' + n.id + '\', \'keep\')" class="px-1.5 py-0.2 rounded bg-emerald-900 text-white text-[8px] font-bold">KEEPへ</button>' +
+              '<button type="button" onclick="quoteSnsNoteToJournal(\'' + n.id + '\', \'memo\')" class="px-1.5 py-0.2 rounded bg-indigo-900 text-white text-[8px] font-bold">日記へ</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  }
+
+  function quoteSnsNoteToJournal(noteId, targetField) {
+    var n = (db.notes || []).find(function(x) { return x.id === noteId; });
+    if (!n) return;
+    var snippet = (n.title ? ('【' + n.title + '】') : '') + (n.content || '');
+    var elId = targetField === 'keep' ? 'jKeepInput' : 'jMemoInput';
+    var ta = document.getElementById(elId);
+    if (!ta) return;
+    var cur = ta.value.trim();
+    var nextVal = cur ? (cur + '\n・' + snippet) : ('・' + snippet);
+    ta.value = nextVal;
+    updateJournalTextField(targetField, nextVal);
+    showToast(targetField === 'keep' ? 'KEEPへ引用追記しました' : '自由日記へ引用追記しました');
+  }
+
+  function deleteJournalActivityLine(domain, lineIdx) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    if (domain === 'private') {
+      var pLog = ensurePrivateLog(dateStr);
+      var arr = pLog.scheduleText ? pLog.scheduleText.split('\n').filter(Boolean) : [];
+      arr.splice(lineIdx, 1);
+      pLog.scheduleText = arr.join('\n');
+      renderDailyJournalView();
+      scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+    } else {
+      var wLog = ensureWorkLog(dateStr);
+      var wArr = wLog.scheduleText ? wLog.scheduleText.split('\n').filter(Boolean) : [];
+      wArr.splice(lineIdx, 1);
+      wLog.scheduleText = wArr.join('\n');
+      renderDailyJournalView();
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+    }
+    showToast('行動ログを削除しました');
+  }
+
+  function renderStylishJournalArchive() {
+    var container = document.getElementById('journalStyledCardsList');
+    var countBadge = document.getElementById('journalArchiveCountBadge');
+    if (!container) return;
+
+    var dateSet = {};
+    var todayStr = formatDateLocal(new Date());
+    dateSet[todayStr] = true;
+
+    (db.workLogs || []).forEach(function(l) { if (l && l.date) dateSet[l.date] = true; });
+    (db.privateLogs || []).forEach(function(l) { if (l && l.date) dateSet[l.date] = true; });
+    (db.notes || []).forEach(function(n) { if (n && n.createdAt) dateSet[n.createdAt] = true; });
+    (db.todos || []).forEach(function(t) { if (t && t.completed && t.completedAt) dateSet[t.completedAt] = true; });
+
+    var allDates = Object.keys(dateSet).sort(function(a, b) { return b.localeCompare(a); });
+
+    var cards = [];
+    allDates.forEach(function(ds) {
+      var wLog = (db.workLogs || []).find(function(l) { return l.date === ds; }) || {};
+      var pLog = (db.privateLogs || []).find(function(l) { return l.date === ds; }) || {};
+      var prevDs = getShiftDateStr(ds, -1);
+      var prevP = (db.privateLogs || []).find(function(l) { return l.date === prevDs; }) || {};
+
+      var workActs = wLog.scheduleText ? wLog.scheduleText.split('\n').filter(Boolean) : [];
+      var privActs = pLog.scheduleText ? pLog.scheduleText.split('\n').filter(Boolean) : [];
+      var acts = workActs.concat(privActs);
+      var dayNotes = (db.notes || []).filter(function(n) { return n.createdAt === ds; });
+      var dayTodos = (db.todos || []).filter(function(t) { return t.completed && t.completedAt === ds; });
+
+      var keepTxt = wLog.keep || wLog.reportKeep || '';
+      var probTxt = wLog.problem || wLog.reportProblem || '';
+      var tryTxt = wLog.tryText || wLog.reportTry || '';
+      var intTxt = wLog.intention || wLog.quickNote || '';
+
+      var hasAnyContent = !!(pLog.wakeTime || wLog.startTime || wLog.endTime || pLog.bedTime || acts.length || dayNotes.length || dayTodos.length || keepTxt || probTxt || tryTxt || wLog.memo || intTxt);
+      if (!hasAnyContent && ds !== todayStr) return;
+
+      var ratingVal = Number(wLog.dayRating || wLog.growthScore || 3);
+      var condVal = Number(pLog.condition || wLog.condition || 3);
+      var moodVal = Number(wLog.mood || 3);
+      var hasKptOrMemo = !!(keepTxt || probTxt || tryTxt || wLog.memo);
+
+      if (journalArchiveFilter === 'high' && ratingVal < 4) return;
+      if (journalArchiveFilter === 'kpt' && !hasKptOrMemo) return;
+
+      var wd = getWeekdayEn(ds);
+      var dotDate = ds.replace(/-/g, '.');
+      var sleepDur = pLog.wakeTime ? calcDurationLabel(prevP.bedTime || '23:30', pLog.wakeTime) : '--h--m';
+      var workDur = (wLog.startTime && wLog.endTime) ? calcDurationLabel(wLog.startTime, wLog.endTime) : '--h--m';
+
+      var timelineRows = [];
+      acts.forEach(function(a) {
+        timelineRows.push('<div class="flex items-start gap-1.5 text-[11px] text-slate-800">' +
+          '<span class="w-1.5 h-1.5 rounded-full bg-teal-800 mt-1.5 shrink-0"></span>' +
+          '<span class="font-medium break-words flex-1">' + escapeHtml(a) + '</span>' +
+        '</div>');
+      });
+      dayNotes.forEach(function(n) {
+        var txt = n.title ? (n.title + '：' + (n.content || '')) : (n.content || '');
+        timelineRows.push('<div class="flex items-start gap-1.5 text-[11px] text-slate-700">' +
+          '<span class="px-1 py-0.2 rounded bg-indigo-950 text-white font-mono text-[8px] font-bold mt-0.5 shrink-0">SNS</span>' +
+          '<span class="clamp-2 flex-1">' + escapeHtml(txt) + '</span>' +
+        '</div>');
+      });
+      dayTodos.forEach(function(t) {
+        timelineRows.push('<div class="flex items-start gap-1.5 text-[11px] text-slate-600">' +
+          '<span class="px-1 py-0.2 rounded bg-emerald-900 text-white font-mono text-[8px] font-bold mt-0.5 shrink-0">DONE</span>' +
+          '<span class="truncate flex-1">' + escapeHtml(t.title) + '</span>' +
+        '</div>');
+      });
+
+      var timelineHtml = timelineRows.length > 0
+        ? '<div class="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 space-y-1">' + timelineRows.join('') + '</div>'
+        : '';
+
+      var kptPreviewHtml = '';
+      if (keepTxt || probTxt || tryTxt || wLog.memo) {
+        kptPreviewHtml = '<div class="space-y-1.5 text-[11px] pt-2 border-t border-slate-100">' +
+          (keepTxt ? '<div class="pl-2 border-l-3 border-emerald-800 text-slate-800 clamp-2"><span class="font-mono text-[9px] font-bold text-emerald-900 mr-1.5">KEEP</span>' + escapeHtml(keepTxt) + '</div>' : '') +
+          (probTxt ? '<div class="pl-2 border-l-3 border-rose-900 text-slate-800 clamp-2"><span class="font-mono text-[9px] font-bold text-rose-900 mr-1.5">PROBLEM</span>' + escapeHtml(probTxt) + '</div>' : '') +
+          (tryTxt ? '<div class="pl-2 border-l-3 border-blue-900 text-slate-800 clamp-2"><span class="font-mono text-[9px] font-bold text-blue-950 mr-1.5">TRY</span>' + escapeHtml(tryTxt) + '</div>' : '') +
+          (wLog.memo ? '<div class="pl-2 border-l-3 border-indigo-900 text-slate-700 clamp-2"><span class="font-mono text-[9px] font-bold text-indigo-950 mr-1.5">NOTE</span>' + escapeHtml(wLog.memo) + '</div>' : '') +
+        '</div>';
+      }
+
+      cards.push(
+        '<article onclick="openJournalDateForEdit(\'' + ds + '\')" class="card-surface overflow-hidden cursor-pointer hover:border-blue-900 transition">' +
+          '<div class="bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 text-white px-3 py-2 flex items-center justify-between gap-2">' +
+            '<div class="flex items-baseline gap-2">' +
+              '<span class="font-mono font-bold text-sm tracking-tight">' + escapeHtml(dotDate) + '</span>' +
+              '<span class="text-[9px] font-mono font-bold tracking-widest text-sky-300">' + wd + '</span>' +
+              (ds === todayStr ? '<span class="text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-800 text-amber-50">TODAY</span>' : '') +
+            '</div>' +
+            '<div class="flex items-center gap-1 font-mono text-[9px]">' +
+              '<span class="px-1.5 py-0.5 rounded bg-emerald-900 text-emerald-50 font-bold">評価 ' + ratingVal + '</span>' +
+              '<span class="px-1.5 py-0.5 rounded bg-teal-900 text-teal-50 font-bold">体調 ' + condVal + '</span>' +
+              '<span class="px-1.5 py-0.5 rounded bg-indigo-900 text-indigo-50 font-bold">気分 ' + moodVal + '</span>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="p-3 space-y-2">' +
+            '<div class="flex items-center justify-between gap-1.5 flex-wrap text-[9px] font-mono border-b border-slate-100 pb-1.5">' +
+              '<div class="flex items-center gap-1 flex-wrap">' +
+                '<span class="px-1.5 py-0.5 rounded bg-amber-900 text-amber-50 font-bold">起床 ' + (pLog.wakeTime || '--:--') + '</span>' +
+                '<span class="px-1.5 py-0.5 rounded bg-blue-950 text-blue-50 font-bold">出勤 ' + (wLog.startTime || '--:--') + '</span>' +
+                '<span class="px-1.5 py-0.5 rounded bg-rose-900 text-rose-50 font-bold">退勤 ' + (wLog.endTime || '--:--') + '</span>' +
+                '<span class="px-1.5 py-0.5 rounded bg-indigo-900 text-indigo-50 font-bold">就寝 ' + (pLog.bedTime || '--:--') + '</span>' +
+              '</div>' +
+              '<div class="text-slate-600 font-semibold">睡眠 ' + sleepDur + ' · 実働 ' + workDur + '</div>' +
+            '</div>' +
+
+            (intTxt ? '<div class="pl-2 border-l-3 border-amber-800 text-xs font-bold text-slate-900 leading-snug">' + escapeHtml(intTxt) + '</div>' : '') +
+            timelineHtml +
+            kptPreviewHtml +
+          '</div>' +
+        '</article>'
+      );
+    });
+
+    if (countBadge) countBadge.textContent = cards.length + ' DAYS';
+    container.innerHTML = cards.length > 0
+      ? cards.join('')
+      : '<div class="text-xs text-slate-400 text-center py-8">該当する記録がありません</div>';
+  }
+
+  // =========================================================
+  // フェーズ2：週次・月次レビュー（自動ダイジェスト＆AIプロンプト）
+  // =========================================================
+  var KEY_PERIOD_REVIEWS = 'worklife_os_period_reviews_v1';
+
+  function setJournalReviewSpan(span) {
+    journalReviewSpan = span;
+    var wBtn = document.getElementById('jRevSpanWeekBtn');
+    var mBtn = document.getElementById('jRevSpanMonthBtn');
+    if (wBtn) wBtn.className = (span === 'week') ? 'px-2.5 py-1 rounded-md bg-blue-950 text-white' : 'px-2.5 py-1 rounded-md text-slate-600';
+    if (mBtn) mBtn.className = (span === 'month') ? 'px-2.5 py-1 rounded-md bg-blue-950 text-white' : 'px-2.5 py-1 rounded-md text-slate-600';
+    renderJournalPeriodReview();
+  }
+
+  function shiftJournalReviewCursor(dir) {
+    var base = new Date(journalReviewAnchorDate + 'T12:00:00');
+    if (journalReviewSpan === 'week') {
+      base.setDate(base.getDate() + (dir * 7));
+    } else {
+      base.setMonth(base.getMonth() + dir);
+    }
+    journalReviewAnchorDate = formatDateLocal(base);
+    renderJournalPeriodReview();
+  }
+
+  function getPeriodReviewBounds() {
+    var base = new Date(journalReviewAnchorDate + 'T12:00:00');
+    if (journalReviewSpan === 'week') {
+      var monStr = getMonday(base);
+      var sunStr = getShiftDateStr(monStr, 6);
+      return {
+        key: 'W_' + monStr,
+        label: monStr.slice(5).replace('-', '/') + ' 〜 ' + sunStr.slice(5).replace('-', '/'),
+        startStr: monStr,
+        endStr: sunStr
+      };
+    } else {
+      var y = base.getFullYear();
+      var m = ('0' + (base.getMonth() + 1)).slice(-2);
+      var lastD = new Date(y, base.getMonth() + 1, 0).getDate();
+      return {
+        key: 'M_' + y + '-' + m,
+        label: y + '年' + (base.getMonth() + 1) + '月',
+        startStr: y + '-' + m + '-01',
+        endStr: y + '-' + m + '-' + ('0' + lastD).slice(-2)
+      };
+    }
+  }
+
+  function getPeriodReviewsStore() {
+    try { return JSON.parse(localStorage.getItem(KEY_PERIOD_REVIEWS) || '{}'); } catch (e) { return {}; }
+  }
+
+  function saveJournalPeriodSummary(val) {
+    var bounds = getPeriodReviewBounds();
+    var store = getPeriodReviewsStore();
+    store[bounds.key] = val;
+    try { localStorage.setItem(KEY_PERIOD_REVIEWS, JSON.stringify(store)); } catch (e) {}
+    if (typeof pushCloudAppSetting === 'function') pushCloudAppSetting('periodReviews', store);
+    showToast('期間総括を保存しました');
+  }
+
+  function collectPeriodDigestData() {
+    var bounds = getPeriodReviewBounds();
+    var wLogs = (db.workLogs || []).filter(function(l) { return l.date >= bounds.startStr && l.date <= bounds.endStr; });
+    var pLogs = (db.privateLogs || []).filter(function(l) { return l.date >= bounds.startStr && l.date <= bounds.endStr; });
+    var notes = (db.notes || []).filter(function(n) { return n.createdAt >= bounds.startStr && n.createdAt <= bounds.endStr; });
+    var doneTodos = (db.todos || []).filter(function(t) { return t.completed && t.completedAt >= bounds.startStr && t.completedAt <= bounds.endStr; });
+
+    var sleepSum = 0, sleepCnt = 0, condSum = 0, condCnt = 0, rateSum = 0, rateCnt = 0;
+    var stepsSum = 0, stepsCnt = 0, weights = [];
+
+    pLogs.forEach(function(p) {
+      if (p.sleepHours && Number(p.sleepHours) > 0) { sleepSum += Number(p.sleepHours); sleepCnt++; }
+      if (p.condition) { condSum += Number(p.condition); condCnt++; }
+      if (p.steps && Number(p.steps) > 0) { stepsSum += Number(p.steps); stepsCnt++; }
+      if (p.weight && Number(p.weight) > 0) weights.push({ date: p.date, val: Number(p.weight) });
+    });
+    wLogs.forEach(function(w) {
+      if (w.dayRating || w.growthScore) { rateSum += Number(w.dayRating || w.growthScore); rateCnt++; }
+    });
+    weights.sort(function(a, b) { return a.date.localeCompare(b.date); });
+
+    return {
+      bounds: bounds,
+      wLogs: wLogs.slice().sort(function(a, b) { return a.date.localeCompare(b.date); }),
+      pLogs: pLogs,
+      notes: notes,
+      doneTodos: doneTodos,
+      avgSleep: sleepCnt > 0 ? (sleepSum / sleepCnt).toFixed(1) + 'h' : '--',
+      avgCond: condCnt > 0 ? (condSum / condCnt).toFixed(1) : '--',
+      avgRate: rateCnt > 0 ? (rateSum / rateCnt).toFixed(1) : '--',
+      avgSteps: stepsCnt > 0 ? Math.round(stepsSum / stepsCnt).toLocaleString() + '歩' : '--',
+      weightRange: weights.length > 0 ? (weights[0].val + '→' + weights[weights.length - 1].val + 'kg') : '--'
+    };
+  }
+
+  function renderJournalPeriodReview() {
+    var data = collectPeriodDigestData();
+    var lbl = document.getElementById('jRevPeriodLabel');
+    if (lbl) lbl.textContent = data.bounds.label;
+
+    var kpiGrid = document.getElementById('jRevKpiGrid');
+    if (kpiGrid) {
+      kpiGrid.innerHTML =
+        '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200/80">' +
+          '<div class="text-[9px] font-mono text-slate-400">AVG SLEEP / COND</div>' +
+          '<div class="text-xs font-mono font-bold text-indigo-950 mt-0.5">' + data.avgSleep + ' <span class="text-slate-400">/</span> ' + data.avgCond + '<span class="text-[9px] font-normal">/5</span></div>' +
+        '</div>' +
+        '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200/80">' +
+          '<div class="text-[9px] font-mono text-slate-400">AVG RATING / DONE</div>' +
+          '<div class="text-xs font-mono font-bold text-emerald-900 mt-0.5">' + data.avgRate + '<span class="text-[9px] font-normal">/5</span> <span class="text-slate-400">/</span> ' + data.doneTodos.length + '件</div>' +
+        '</div>' +
+        '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200/80">' +
+          '<div class="text-[9px] font-mono text-slate-400">AVG STEPS / WEIGHT</div>' +
+          '<div class="text-xs font-mono font-bold text-slate-900 mt-0.5">' + data.avgSteps + ' <span class="text-slate-400">/</span> ' + data.weightRange + '</div>' +
+        '</div>' +
+        '<div class="p-2 rounded-lg bg-slate-50 border border-slate-200/80">' +
+          '<div class="text-[9px] font-mono text-slate-400">LOGGED DAYS / SNS</div>' +
+          '<div class="text-xs font-mono font-bold text-blue-950 mt-0.5">' + data.wLogs.length + '日 <span class="text-slate-400">/</span> ' + data.notes.length + '投稿</div>' +
+        '</div>';
+    }
+
+    var items = [];
+    data.wLogs.forEach(function(w) {
+      var dShort = w.date.slice(5).replace('-', '/');
+      var k = w.keep || w.reportKeep || '';
+      var p = w.problem || w.reportProblem || '';
+      var t = w.tryText || w.reportTry || '';
+      if (k) items.push('<div class="pl-2 border-l-3 border-emerald-800 text-[11px] text-slate-800"><span class="font-mono text-[9px] font-bold text-emerald-900 mr-1">' + dShort + ' KEEP</span>' + escapeHtml(k) + '</div>');
+      if (p) items.push('<div class="pl-2 border-l-3 border-rose-900 text-[11px] text-slate-800"><span class="font-mono text-[9px] font-bold text-rose-900 mr-1">' + dShort + ' PROB</span>' + escapeHtml(p) + '</div>');
+      if (t) items.push('<div class="pl-2 border-l-3 border-blue-900 text-[11px] text-slate-800"><span class="font-mono text-[9px] font-bold text-blue-950 mr-1">' + dShort + ' TRY</span>' + escapeHtml(t) + '</div>');
+    });
+    data.notes.forEach(function(n) {
+      var dShort = String(n.createdAt || '').slice(5).replace('-', '/');
+      var txt = (n.title ? '【' + n.title + '】' : '') + (n.content || '');
+      items.push('<div class="pl-2 border-l-3 border-indigo-900 text-[11px] text-slate-700"><span class="font-mono text-[9px] font-bold text-indigo-950 mr-1">' + dShort + ' SNS</span>' + escapeHtml(txt) + '</div>');
+    });
+
+    var hCnt = document.getElementById('jRevHighlightCount');
+    var hList = document.getElementById('jRevHighlightsList');
+    if (hCnt) hCnt.textContent = items.length + ' ITEMS';
+    if (hList) {
+      hList.innerHTML = items.length > 0
+        ? items.join('')
+        : '<div class="text-[11px] text-slate-400 text-center py-4">この期間の振り返り・投稿はまだありません</div>';
+    }
+
+    var store = getPeriodReviewsStore();
+    var ta = document.getElementById('jRevSummaryTextarea');
+    if (ta) ta.value = store[data.bounds.key] || '';
+  }
+
+  function copyPeriodReviewPrompt() {
+    var data = collectPeriodDigestData();
+    var lines = [
+      '以下の私の「Life & Work OS」の期間データをもとに、パーソナルコーチとして振り返り分析と来週（来月）の具体的な改善アクションを提案してください。',
+      '',
+      '【対象期間】' + data.bounds.label + '（' + data.bounds.startStr + ' 〜 ' + data.bounds.endStr + '）',
+      '【バイタル・評価サマリー】',
+      '- 平均睡眠時間: ' + data.avgSleep,
+      '- 平均体調スコア: ' + data.avgCond + ' / 5',
+      '- 平均総合評価: ' + data.avgRate + ' / 5',
+      '- 平均歩数 / 体重推移: ' + data.avgSteps + ' / ' + data.weightRange,
+      '- 完了タスク数: ' + data.doneTodos.length + '件 / ひとりSNS投稿数: ' + data.notes.length + '件',
+      '',
+      '【日次KPT・振り返りログ】'
+    ];
+    data.wLogs.forEach(function(w) {
+      var k = w.keep || w.reportKeep || '';
+      var p = w.problem || w.reportProblem || '';
+      var t = w.tryText || w.reportTry || '';
+      if (k || p || t || w.intention) {
+        lines.push('■ ' + w.date + (w.intention ? '（意図: ' + w.intention + '）' : ''));
+        if (k) lines.push('  - KEEP: ' + k);
+        if (p) lines.push('  - PROBLEM: ' + p);
+        if (t) lines.push('  - TRY: ' + t);
+      }
+    });
+    if (data.notes.length > 0) {
+      lines.push('', '【ひとりSNS・思考ログ】');
+      data.notes.slice(0, 15).forEach(function(n) {
+        lines.push('- [' + n.createdAt + '] ' + (n.title ? '【' + n.title + '】' : '') + (n.content || ''));
+      });
+    }
+    var promptText = lines.join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(promptText).then(function() {
+        showToast('AIコーチ用プロンプトをコピーしました！');
+      }).catch(function() {
+        window.prompt('以下をコピーしてください:', promptText);
+      });
+    } else {
+      window.prompt('以下をコピーしてください:', promptText);
+    }
+  }
+
+  function renderSlimRatingSegments(containerId, currentVal, selectedClass, onSelectFnName) {
+    var box = document.getElementById(containerId);
+    if (!box) return;
+    var cur = Number(currentVal || 3);
+    box.innerHTML = [1, 2, 3, 4, 5].map(function(num) {
+      var sel = (cur === num);
+      return '<button type="button" onclick="' + onSelectFnName + '(' + num + ')" class="slim-seg-btn ' + (sel ? ('is-selected ' + selectedClass) : '') + '">' +
+        num +
+      '</button>';
+    }).join('');
+  }
+
+  function setJournalRating(field, val) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var wLog = ensureWorkLog(dateStr);
+    var pLog = ensurePrivateLog(dateStr);
+    if (field === 'sleepQuality') {
+      pLog.sleepQuality = val;
+      scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+    } else if (field === 'condition') {
+      pLog.condition = val;
+      wLog.condition = val;
+      scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+    } else if (field === 'dayRating') {
+      wLog.dayRating = val;
+      wLog.growthScore = val;
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+    } else if (field === 'mood') {
+      wLog.mood = val;
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+    }
+    renderDailyJournalView();
+  }
+
+  function updateJournalTimeField(field, val) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    if (field === 'wakeTime' || field === 'bedTime') {
+      var pLog = ensurePrivateLog(dateStr);
+      pLog[field] = val;
+      if (field === 'wakeTime' && val) {
+        var prevP = (db.privateLogs || []).find(function(l) { return l.date === getShiftDateStr(dateStr, -1); }) || {};
+        var sh = computeSleepHoursFloat(prevP.bedTime || '23:30', val);
+        if (sh !== null) {
+          pLog.sleepHours = sh;
+          var wLog = ensureWorkLog(dateStr);
+          wLog.sleepHours = sh;
+          scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+        }
+      }
+      updateStampPillStates(dateStr);
+      renderDailyJournalView();
+      scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+    } else {
+      var wLog2 = ensureWorkLog(dateStr);
+      wLog2[field] = val;
+      updateStampPillStates(dateStr);
+      renderDailyJournalView();
+      scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog2);
+    }
+  }
+
+  function updateJournalVitalField(field, val) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var pLog = ensurePrivateLog(dateStr);
+    pLog[field] = (val !== '' && val !== null) ? Number(val) : '';
+    scheduleBgSync('syncPrivateDailyLog', 'priv_' + dateStr, pLog);
+    showToast('バイタルを記録しました');
+  }
+
+  function updateJournalTextField(field, val) {
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var wLog = ensureWorkLog(dateStr);
+    wLog[field] = val;
+    if (field === 'intention') wLog.quickNote = val;
+    if (field === 'keep') wLog.reportKeep = val;
+    if (field === 'problem') wLog.reportProblem = val;
+    if (field === 'tryText') wLog.reportTry = val;
+    renderDailyJournalView();
+    scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+  }
+
+  function sendJournalTryToTodo() {
+    var tryTxt = (document.getElementById('jTryInput').value || '').trim();
+    if (!tryTxt) return showToast('Tryの内容を入力してください', true);
+    var tomorrow = getShiftDateStr(document.getElementById('targetDate').value || formatDateLocal(new Date()), 1);
+    db.todos.unshift({
+      id: 'todo_' + Date.now(),
+      title: tryTxt,
+      importance: 'high',
+      urgency: 'mid',
+      startDate: tomorrow,
+      dueDate: tomorrow,
+      project: getMasterOptions().todoProjects[0],
+      tags: ['#Try'],
+      status: 'todo',
+      completed: false,
+      subtasks: [],
+      createdAt: formatDateLocal(new Date())
+    });
+    if (typeof saveTodosImmediate === 'function') saveTodosImmediate();
+    showToast('明日のタスクに送りました');
+  }
+
+  function populateJournalActCategories() {
+    var sel = document.getElementById('journalActCatSelect');
+    if (!sel) return;
+    var cats = getMasterOptions().activityCats;
+    var prev = sel.value;
+    sel.innerHTML = cats.map(function(c) {
+      return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>';
+    }).join('');
+    if (prev && cats.indexOf(prev) !== -1) sel.value = prev;
+  }
+
+  function addJournalActivityLog(e) {
+    e.preventDefault();
+    var title = (document.getElementById('journalActTitleInput').value || '').trim();
+    if (!title) return showToast('内容を入力してください', true);
+    var st = document.getElementById('journalActStartInput').value || getCurrentHHMM();
+    var et = document.getElementById('journalActEndInput').value || getCurrentHHMM();
+    var cat = document.getElementById('journalActCatSelect').value || getMasterOptions().activityCats[0];
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+
+    var wLog = ensureWorkLog(dateStr);
+    var line = st + ' - ' + et + ' [' + cat + '] ' + title;
+    wLog.scheduleText = wLog.scheduleText ? (wLog.scheduleText + '\n' + line) : line;
+
+    document.getElementById('journalActTitleInput').value = '';
+    document.getElementById('journalActStartInput').value = et;
+    renderDailyJournalView();
+    scheduleBgSync('syncWorkDailyLog', 'work_' + dateStr, wLog);
+    showToast('活動ログを記録しました');
+  }
+
+  function calcDurationLabel(st, et) {
+    if (!st || !et) return '--h--m';
+    var sp = st.split(':'), ep = et.split(':');
+    if (sp.length < 2 || ep.length < 2) return '--h--m';
+    var m1 = Number(sp[0]) * 60 + Number(sp[1]);
+    var m2 = Number(ep[0]) * 60 + Number(ep[1]);
+    var diff = m2 - m1;
+    if (diff < 0) diff += 1440;
+    return Math.floor(diff / 60) + 'h' + ('0' + (diff % 60)).slice(-2) + 'm';
+  }
+
+  function renderDailyJournalView() {
+    if (journalSubMode === 'list') {
+      renderStylishJournalArchive();
+      return;
+    }
+    if (journalSubMode === 'review') {
+      renderJournalPeriodReview();
+      return;
+    }
+    populateJournalActCategories();
+    var dateStr = document.getElementById('targetDate').value || formatDateLocal(new Date());
+    var prevDateStr = getShiftDateStr(dateStr, -1);
+    var wLog = ensureWorkLog(dateStr);
+    var pLog = ensurePrivateLog(dateStr);
+    var prevPLog = (db.privateLogs || []).find(function(l) { return l.date === prevDateStr; }) || {};
+
+    document.getElementById('jWakeTimeInput').value = pLog.wakeTime || '';
+    document.getElementById('jStartTimeInput').value = wLog.startTime || '';
+    document.getElementById('jEndTimeInput').value = wLog.endTime || '';
+    document.getElementById('jBedTimeInput').value = pLog.bedTime || '';
+
+    document.getElementById('jStepsInput').value = (pLog.steps !== '' && pLog.steps !== undefined) ? pLog.steps : '';
+    document.getElementById('jWeightInput').value = (pLog.weight !== '' && pLog.weight !== undefined) ? pLog.weight : '';
+    document.getElementById('jBpSysInput').value = (pLog.bpSys !== '' && pLog.bpSys !== undefined) ? pLog.bpSys : '';
+    document.getElementById('jBpDiaInput').value = (pLog.bpDia !== '' && pLog.bpDia !== undefined) ? pLog.bpDia : '';
+
+    var sleepDur = calcDurationLabel(prevPLog.bedTime || '23:30', pLog.wakeTime);
+    document.getElementById('journalSleepCalcBadge').textContent = 'SLEEP ' + (pLog.wakeTime ? sleepDur : '--h--m');
+
+    var workDur = calcDurationLabel(wLog.startTime, wLog.endTime);
+    document.getElementById('journalWorkCalcBadge').textContent = 'WORK ' + ((wLog.startTime && wLog.endTime) ? workDur : '--h--m');
+
+    renderJournalHeroSummary(dateStr, wLog, pLog, sleepDur, workDur);
+    renderJournalTodayTimeline(dateStr, wLog, pLog);
+
+    renderSlimRatingSegments('jSleepQualityGroup', pLog.sleepQuality || 3, 'is-selected-indigo', 'setJournalRatingSleep');
+    renderSlimRatingSegments('jMorningCondGroup', pLog.condition || wLog.condition || 3, 'is-selected-teal', 'setJournalRatingCond');
+    renderSlimRatingSegments('jDayRatingGroup', wLog.dayRating || wLog.growthScore || 3, 'is-selected-emerald', 'setJournalRatingDay');
+    renderSlimRatingSegments('jDayMoodGroup', wLog.mood || 3, 'is-selected-rose', 'setJournalRatingMood');
+
+    document.getElementById('jDailyIntentionInput').value = wLog.intention || wLog.quickNote || '';
+    document.getElementById('jKeepInput').value = wLog.keep || wLog.reportKeep || '';
+    document.getElementById('jProblemInput').value = wLog.problem || wLog.reportProblem || '';
+    document.getElementById('jTryInput').value = wLog.tryText || wLog.reportTry || '';
+    document.getElementById('jMemoInput').value = wLog.memo || '';
+
+    var stAct = document.getElementById('journalActStartInput');
+    var etAct = document.getElementById('journalActEndInput');
+    if (stAct && !stAct.value) stAct.value = getCurrentHHMM();
+    if (etAct && !etAct.value) etAct.value = getCurrentHHMM();
+  }
+
+  function setJournalRatingSleep(v) { setJournalRating('sleepQuality', v); }
+  function setJournalRatingCond(v) { setJournalRating('condition', v); }
+  function setJournalRatingDay(v) { setJournalRating('dayRating', v); }
+  function setJournalRatingMood(v) { setJournalRating('mood', v); }
+
+  App.on('masterOptions:changed', populateJournalActCategories);
+  App.on('data:loaded', function() {
+    renderHomePrevTryCard();
+    if (currentView === 'form') renderDailyJournalView();
+  });
+</script>

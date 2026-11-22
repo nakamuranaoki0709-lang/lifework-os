@@ -1,0 +1,278 @@
+<!-- 詳細時刻・バイタル・歩数入力カード -->
+<div id="vitalsWrapper" class="space-y-2">
+  <div id="attendanceCard" class="card-surface px-3 py-2.5 space-y-2">
+    <div class="flex items-center justify-between text-[10px] text-slate-500">
+      <span class="font-semibold text-slate-700"><i class="fa-regular fa-clock mr-1"></i>勤怠時刻の微調整・休憩</span>
+      <button type="button" onclick="saveAttendanceManual()" class="text-slate-700 hover:text-slate-950 font-semibold bg-slate-100 hover:bg-slate-200/80 px-2.5 py-0.5 rounded-md transition">
+        時間更新
+      </button>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-xs">
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-[10px] font-semibold text-slate-400">出勤</span>
+        <input type="time" id="inputStartTime" class="bg-transparent font-mono tabular-nums font-bold text-xs text-slate-900 outline-none">
+      </div>
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-[10px] font-semibold text-slate-400">退勤</span>
+        <input type="time" id="inputEndTime" class="bg-transparent font-mono tabular-nums font-bold text-xs text-slate-900 outline-none">
+      </div>
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-[10px] font-semibold text-slate-400">休憩</span>
+        <div class="flex items-center gap-0.5">
+          <input type="number" id="inputBreakMinutes" value="80" class="w-9 bg-transparent text-right font-mono tabular-nums font-bold text-slate-900 outline-none">
+          <span class="text-[9px] text-slate-400">分</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="privateVitalsCard" class="card-surface px-3 py-2.5 space-y-2 hidden">
+    <div class="flex items-center justify-between text-[10px]">
+      <span class="font-semibold text-slate-700"><i class="fa-solid fa-heart-pulse text-rose-500 mr-1"></i>睡眠・バイタル・歩数</span>
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="openStepsSyncModal()" class="text-[9px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-md transition">
+          <i class="fa-solid fa-shoe-prints mr-0.5"></i>歩数自動連携
+        </button>
+        <button type="button" onclick="savePrivateVitalsManual()" class="px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-md transition">
+          保存
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-1.5 text-xs">
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+        <span class="text-[10px] font-semibold text-slate-400">起床時刻</span>
+        <input type="time" id="inputWakeTime" onchange="onSleepInputChanged()" class="bg-transparent font-mono tabular-nums font-bold text-xs text-slate-900 outline-none">
+      </div>
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+        <span class="text-[10px] font-semibold text-slate-400">就寝時刻</span>
+        <input type="time" id="inputBedTime" onchange="onSleepInputChanged()" class="bg-transparent font-mono tabular-nums font-bold text-xs text-slate-900 outline-none">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-slate-400 font-semibold">歩数</span>
+        <div class="flex items-center gap-0.5">
+          <input type="number" id="inputSteps" placeholder="8000" class="w-12 bg-transparent font-mono tabular-nums font-bold text-slate-900 text-right outline-none">
+          <span class="text-slate-400 text-[9px]">歩</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-slate-400 font-semibold">体重</span>
+        <div class="flex items-center gap-0.5">
+          <input type="number" id="inputWeight" step="0.1" placeholder="65.0" class="w-10 bg-transparent font-mono tabular-nums font-bold text-slate-900 text-right outline-none">
+          <span class="text-slate-400 text-[9px]">kg</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+        <span class="text-slate-400 font-semibold">血圧</span>
+        <div class="flex items-center gap-0.5">
+          <input type="number" id="inputBpSys" placeholder="120" class="w-7 bg-transparent font-mono tabular-nums font-bold text-slate-900 text-center outline-none">
+          <span class="text-slate-400">/</span>
+          <input type="number" id="inputBpDia" placeholder="80" class="w-7 bg-transparent font-mono tabular-nums font-bold text-slate-900 text-center outline-none">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- スマホ歩数自動連携ガイドモーダル -->
+<div id="stepsSyncModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden flex items-center justify-center p-3" onclick="closeStepsSyncModal()">
+  <div class="bg-white rounded-xl max-w-sm w-full p-4 shadow-2xl space-y-3 border border-slate-200 text-xs" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <span class="font-bold text-slate-900"><i class="fa-solid fa-shoe-prints text-indigo-600 mr-1.5"></i>スマホ歩数 自動連携ガイド</span>
+      <button onclick="closeStepsSyncModal()" class="text-slate-400 hover:text-slate-800 w-6 h-6 rounded-md bg-slate-100"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="text-[11px] text-slate-600 leading-relaxed">
+      Google Fit API は現在 Health Connect へ統合されたため、スマホの自動化機能から以下の送信先URLへ歩数をPOST送信することで自動記録できます。
+    </p>
+    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1">
+      <div class="text-[10px] font-semibold text-slate-500">送信先 Webhook URL（POST）</div>
+      <div id="webhookEndpointDisplay" class="font-mono text-[10px] text-slate-900 break-all bg-white p-1.5 rounded border border-slate-200 select-all"></div>
+    </div>
+    <div class="space-y-1.5 text-[11px] text-slate-700">
+      <div class="font-bold text-slate-900">送信 JSON 形式（例）:</div>
+      <pre class="bg-slate-900 text-emerald-300 p-2 rounded-lg font-mono text-[10px] overflow-x-auto">{"date": "2026-11-19", "steps": 8450}</pre>
+      <ul class="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
+        <li><strong>iPhone</strong>: 「ショートカット」アプリのオートメーション（毎日23:50）で「ヘルスケアサンプルを検索（歩数）」→「URLの内容を取得（POST / JSON）」を設定。</li>
+        <li><strong>Android</strong>: 「ヘルスコネクト」の歩数を MacroDroid / Tasker 等で取得し、上記URLへ HTTP POST 送信。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  App.mount('#slot-form-vitals', 'vitalsWrapper');
+  App.mount('#slot-modals', 'stepsSyncModal');
+
+  App.on('domain:changed', function() {
+    document.getElementById('attendanceCard').classList.toggle('hidden', currentDomain === 'private');
+    document.getElementById('privateVitalsCard').classList.toggle('hidden', currentDomain === 'work');
+  });
+
+  App.on('data:loaded', function(ctx) {
+    var wLog = ctx.wLog, pLog = ctx.pLog;
+    var sTime = wLog ? (wLog.startTime || '') : '';
+    var eTime = wLog ? (wLog.endTime || '') : '';
+    var wakeTime = pLog ? (pLog.wakeTime || '') : '';
+    var bedTime = pLog ? (pLog.bedTime || '') : '';
+    var stepsVal = getPrivateSteps(pLog);
+
+    document.getElementById('inputStartTime').value = sTime;
+    document.getElementById('inputEndTime').value = eTime;
+    document.getElementById('inputBreakMinutes').value = (wLog && wLog.breakMinutes !== undefined) ? wLog.breakMinutes : 80;
+
+    document.getElementById('inputWakeTime').value = wakeTime;
+    document.getElementById('inputBedTime').value = bedTime;
+    document.getElementById('inputSteps').value = stepsVal;
+    document.getElementById('inputWeight').value = (pLog && pLog.weight !== '' && pLog.weight !== undefined) ? pLog.weight : '';
+    document.getElementById('inputBpSys').value = (pLog && pLog.bpSys !== '' && pLog.bpSys !== undefined) ? pLog.bpSys : '';
+    document.getElementById('inputBpDia').value = (pLog && pLog.bpDia !== '' && pLog.bpDia !== undefined) ? pLog.bpDia : '';
+
+    updateHeaderStampButton('hdrBtnWake', 'hdrTimeWake', wakeTime, 'bg-amber-500/20 border-amber-400/50 text-amber-200');
+    updateHeaderStampButton('hdrBtnStart', 'hdrTimeStart', sTime, 'bg-sky-500/20 border-sky-400/50 text-sky-200');
+    updateHeaderStampButton('hdrBtnEnd', 'hdrTimeEnd', eTime, 'bg-rose-500/20 border-rose-400/50 text-rose-200');
+    updateHeaderStampButton('hdrBtnBed', 'hdrTimeBed', bedTime, 'bg-indigo-500/25 border-indigo-400/50 text-indigo-200');
+
+    if (currentDomain === 'private') {
+      var parts = [];
+      if (stepsVal) parts.push(Number(stepsVal).toLocaleString() + '歩');
+      if (pLog && pLog.weight) parts.push(pLog.weight + 'kg');
+      if (pLog && pLog.bpSys && pLog.bpDia) parts.push(pLog.bpSys + '/' + pLog.bpDia);
+      document.getElementById('headerQuickStats').textContent = parts.length > 0 ? parts.join(' / ') : '歩数・体重未記録';
+    } else {
+      var workH = wLog ? (wLog.workHours || 0) : 0;
+      var overH = wLog ? (wLog.overtimeHours || 0) : 0;
+      document.getElementById('headerQuickStats').textContent = '実働 ' + workH + 'h / 残業 ' + overH + 'h';
+    }
+  });
+
+  function updateHeaderStampButton(btnId, timeId, timeVal, activeCls) {
+    var btn = document.getElementById(btnId);
+    var tm = document.getElementById(timeId);
+    if (!btn || !tm) return;
+    if (timeVal) {
+      tm.textContent = timeVal;
+      btn.className = 'rail-stamp-btn border active:scale-95 ' + activeCls;
+    } else {
+      tm.textContent = '--:--';
+      btn.className = 'rail-stamp-btn border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 active:scale-95';
+    }
+  }
+
+  function openStepsSyncModal() {
+    var urlEl = document.getElementById('webhookEndpointDisplay');
+    if (urlEl) urlEl.textContent = window.location.href.split('?')[0];
+    document.getElementById('stepsSyncModal').classList.remove('hidden');
+  }
+  function closeStepsSyncModal() { document.getElementById('stepsSyncModal').classList.add('hidden'); }
+
+  function calcHoursLocal(start, end, breakMin) {
+    if (!start || !end) return { workHours: 0, overtimeHours: 0 };
+    var s = String(start).split(':'), e = String(end).split(':');
+    if (s.length < 2 || e.length < 2) return { workHours: 0, overtimeHours: 0 };
+    var diff = (parseInt(e[0], 10) * 60 + parseInt(e[1], 10)) - (parseInt(s[0], 10) * 60 + parseInt(s[1], 10));
+    if (diff < 0) diff += 1440;
+    var workMin = Math.max(0, diff - (parseInt(breakMin, 10) || 80));
+    return {
+      workHours: parseFloat((workMin / 60).toFixed(2)),
+      overtimeHours: parseFloat((Math.max(0, workMin - 440) / 60).toFixed(2))
+    };
+  }
+
+  function saveAttendanceManual(autoSwitchMode) {
+    var date = document.getElementById('targetDate').value;
+    var sTime = document.getElementById('inputStartTime').value;
+    var eTime = document.getElementById('inputEndTime').value;
+    var breakMin = parseInt(document.getElementById('inputBreakMinutes').value, 10) || 80;
+    var hours = calcHoursLocal(sTime, eTime, breakMin);
+
+    var wLog = getOrCreateWorkLog(date);
+    wLog.startTime = sTime;
+    wLog.endTime = eTime;
+    wLog.breakMinutes = breakMin;
+    wLog.workHours = hours.workHours;
+    wLog.overtimeHours = hours.overtimeHours;
+
+    enqueueSync('syncWorkDailyLog', date, wLog);
+
+    if (autoSwitchMode === 'start') {
+      switchDomain('work');
+      showToast('出勤打刻しました（' + sTime + '）');
+    } else if (autoSwitchMode === 'end') {
+      switchDomain('private');
+      showToast('退勤打刻しました（' + eTime + ' / 私用モードへ切替）');
+    } else {
+      refreshAll();
+      showToast('出退勤を保存しました');
+    }
+  }
+
+  function stampAttendance(type) {
+    var now = new Date();
+    var timeStr = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    if (type === 'start') document.getElementById('inputStartTime').value = timeStr;
+    if (type === 'end') document.getElementById('inputEndTime').value = timeStr;
+    saveAttendanceManual(type);
+  }
+
+  function onSleepInputChanged() {
+    savePrivateVitalsManual('時刻を更新し睡眠時間を再計算しました');
+  }
+
+  function stampSleep(type) {
+    var now = new Date();
+    var timeStr = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    if (type === 'wake') {
+      document.getElementById('inputWakeTime').value = timeStr;
+      savePrivateVitalsManual('起床打刻（' + timeStr + '）を記録しました');
+    } else if (type === 'bed') {
+      document.getElementById('inputBedTime').value = timeStr;
+      savePrivateVitalsManual('就寝打刻（' + timeStr + '）を記録しました');
+    }
+  }
+
+  function savePrivateVitalsManual(customToast) {
+    var dateStr = document.getElementById('targetDate').value;
+    var pLog = getOrCreatePrivateLog(dateStr);
+
+    pLog.wakeTime = document.getElementById('inputWakeTime').value;
+    pLog.bedTime = document.getElementById('inputBedTime').value;
+    var wVal = document.getElementById('inputWeight').value;
+    var sysVal = document.getElementById('inputBpSys').value;
+    var diaVal = document.getElementById('inputBpDia').value;
+    var stepsVal = document.getElementById('inputSteps').value;
+
+    pLog.weight = wVal !== '' ? parseFloat(wVal) : '';
+    pLog.bpSys = sysVal !== '' ? parseInt(sysVal, 10) : '';
+    pLog.bpDia = diaVal !== '' ? parseInt(diaVal, 10) : '';
+    setPrivateSteps(pLog, stepsVal);
+
+    var sleepInfo = computeSleepForDate(dateStr);
+    pLog.sleepHours = sleepInfo.sleepHours;
+
+    if (sleepInfo.sleepHours !== null) {
+      var wLog = getOrCreateWorkLog(dateStr);
+      wLog.sleepHours = sleepInfo.sleepHours;
+      enqueueSync('syncWorkDailyLog', dateStr, wLog);
+    }
+
+    var tomorrowStr = getShiftDateStr(dateStr, 1);
+    var tomorrowPLog = db.privateLogs.find(function(l) { return l.date === tomorrowStr; });
+    if (tomorrowPLog && tomorrowPLog.wakeTime) {
+      var nextSleepInfo = computeSleepForDate(tomorrowStr);
+      tomorrowPLog.sleepHours = nextSleepInfo.sleepHours;
+      enqueueSync('syncPrivateDailyLog', tomorrowStr, tomorrowPLog);
+      if (nextSleepInfo.sleepHours !== null) {
+        var tomorrowWLog = getOrCreateWorkLog(tomorrowStr);
+        tomorrowWLog.sleepHours = nextSleepInfo.sleepHours;
+        enqueueSync('syncWorkDailyLog', tomorrowStr, tomorrowWLog);
+      }
+    }
+
+    refreshAll();
+    enqueueSync('syncPrivateDailyLog', dateStr, pLog);
+    showToast(customToast || 'バイタル・歩数を保存しました');
+  }
+</script>

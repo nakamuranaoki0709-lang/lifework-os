@@ -1,0 +1,347 @@
+<div id="notesWorkspaceSection" class="space-y-2.5">
+  <div class="card-surface p-3.5 space-y-2.5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openNewNoteComposer()" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white rounded-md text-[11px] font-bold transition">
+          + 新規メモ
+        </button>
+        <h2 class="font-semibold text-xs text-slate-900 uppercase tracking-wider">Notes</h2>
+      </div>
+      <button type="button" onclick="openMasterOptionManager('noteGenres')" class="text-[10px] font-semibold text-slate-500 hover:text-slate-900 px-1.5 py-0.5 rounded bg-slate-100">
+        <i class="fa-solid fa-gear mr-0.5"></i>ジャンル設定
+      </button>
+    </div>
+
+    <!-- 検索バー ＆ お気に入りフィルタ -->
+    <div class="space-y-1.5">
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="noteFavOnlyBtn" onclick="toggleNoteFavFilter()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 hover:bg-slate-100 shrink-0 transition">
+          <i class="fa-solid fa-star text-amber-500 mr-1"></i>お気に入り
+        </button>
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 text-[10px] absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="noteSearchInput" oninput="renderNotesWorkspace()" placeholder="キーワードや #ハッシュタグ で検索..." class="w-full pl-7 pr-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white outline-none focus:border-slate-900">
+        </div>
+      </div>
+
+      <div id="noteGenreFilterBar" class="flex items-center gap-1 flex-wrap"></div>
+      <div id="noteHashtagCloudArea" class="flex items-center gap-1 flex-wrap"></div>
+    </div>
+
+    <!-- メモ一覧（カードタップで編集ポップアップ起動） -->
+    <div id="notesListArea" class="space-y-1.5"></div>
+  </div>
+</div>
+
+<!-- メモ作成・編集ポップアップモーダル -->
+<div id="noteEditorModal" class="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-2.5 hidden">
+  <div class="bg-white w-full max-w-md max-h-[88vh] overflow-y-auto rounded-2xl border border-slate-200 shadow-2xl p-3.5 space-y-2.5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+      <span class="text-xs font-bold text-slate-900" id="noteEditorHeading">メモ編集</span>
+      <button type="button" onclick="closeNoteComposer()" class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 hover:text-slate-900 text-xs flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="editNoteId" value="">
+
+    <div class="flex items-center gap-1.5">
+      <select id="editNoteDomain" class="px-2 py-1.5 border border-slate-200 rounded-lg text-[11px] font-semibold bg-white text-slate-800 shrink-0 max-w-[115px]"></select>
+      <input type="text" id="editNoteTitle" placeholder="タイトル..." class="flex-1 min-w-0 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white outline-none focus:border-slate-900">
+      <label class="flex items-center gap-1 px-2 py-1.5 border border-slate-200 rounded-lg bg-white text-[10px] font-semibold cursor-pointer shrink-0">
+        <input type="checkbox" id="editNotePinned" class="rounded border-slate-300">
+        <span>★</span>
+      </label>
+    </div>
+
+    <textarea id="editNoteContent" rows="6" placeholder="メモ本文を入力..." class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs leading-relaxed bg-white outline-none focus:border-slate-900"></textarea>
+
+    <!-- ハッシュタグ入力 ＆ 既存タグワンタップ選択ピッカー -->
+    <div class="space-y-1">
+      <input type="text" id="editNoteExtraTags" placeholder="ハッシュタグ（下の候補をタップで挿入可）" class="w-full px-2.5 py-1 border border-slate-200 rounded-lg text-[11px] font-mono bg-slate-50 outline-none focus:border-slate-900">
+      <div id="noteModalTagPickerArea" class="flex items-center gap-1 flex-wrap"></div>
+    </div>
+
+    <div class="flex items-center gap-1.5 pt-1">
+      <button type="button" onclick="saveNoteItem()" class="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs transition">
+        保存する
+      </button>
+      <button type="button" id="modalNoteCopyBtn" onclick="copyCurrentModalNote()" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs">
+        コピー
+      </button>
+      <button type="button" id="modalNoteDeleteBtn" onclick="deleteCurrentModalNote()" class="px-2.5 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 font-semibold rounded-lg text-xs hidden">
+        削除
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  App.mount('#slot-knowledge-main', 'notesWorkspaceSection');
+
+  var KEY_LOCAL_NOTES = 'worklife_os_notes_v1';
+  var noteFilterFavOnly = false;
+  var noteSelectedHashtag = '';
+  var noteSelectedGenre = 'all';
+
+  function populateNoteGenreSelect() {
+    var sel = document.getElementById('editNoteDomain');
+    if (!sel) return;
+    var prev = sel.value;
+    var genres = getMasterOptions().noteGenres;
+    sel.innerHTML = genres.map(function(g) {
+      return '<option value="' + escapeHtml(g) + '">' + escapeHtml(g) + '</option>';
+    }).join('');
+    if (prev && genres.indexOf(prev) !== -1) sel.value = prev;
+  }
+
+  function selectNoteGenreFilter(g) {
+    noteSelectedGenre = (noteSelectedGenre === g) ? 'all' : g;
+    renderNotesWorkspace();
+  }
+
+  function normalizeLegacyNoteDomain(dom) {
+    if (dom === 'work') return '仕事';
+    if (dom === 'private') return 'プライベート';
+    if (dom === 'cert') return '資格取得';
+    return dom || '仕事';
+  }
+
+  function loadNotesLocal() {
+    try {
+      var raw = localStorage.getItem(KEY_LOCAL_NOTES);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) db.notes = parsed;
+      }
+    } catch (e) {}
+    if (!Array.isArray(db.notes)) db.notes = [];
+  }
+
+  function saveNotesImmediate() {
+    try { localStorage.setItem(KEY_LOCAL_NOTES, JSON.stringify(db.notes)); } catch (e) {}
+    renderNotesWorkspace();
+    renderGamificationHeader();
+    scheduleBgSync('saveNotesList', 'all_notes', db.notes);
+  }
+
+  function syncNotesFromServer() {
+    runGas('getNotesFromSheet', undefined, 12000).then(function(serverNotes) {
+      if (Array.isArray(serverNotes) && serverNotes.length > 0) {
+        db.notes = serverNotes;
+        try { localStorage.setItem(KEY_LOCAL_NOTES, JSON.stringify(db.notes)); } catch (e) {}
+        renderNotesWorkspace();
+      }
+    }).catch(function() {});
+  }
+
+  function openNewNoteComposer() {
+    populateNoteGenreSelect();
+    document.getElementById('noteEditorHeading').textContent = '新規メモ作成';
+    document.getElementById('editNoteId').value = '';
+    var genres = getMasterOptions().noteGenres;
+    var defGenre = (currentDomain === 'private' && genres.indexOf('プライベート') !== -1) ? 'プライベート' : genres[0];
+    document.getElementById('editNoteDomain').value = defGenre;
+    document.getElementById('editNoteTitle').value = '';
+    document.getElementById('editNoteContent').value = '';
+    document.getElementById('editNoteExtraTags').value = '';
+    document.getElementById('editNotePinned').checked = false;
+    document.getElementById('modalNoteDeleteBtn').classList.add('hidden');
+
+    renderTagPickerChips('noteModalTagPickerArea', 'editNoteExtraTags');
+    document.getElementById('noteEditorModal').classList.remove('hidden');
+  }
+
+  function editNoteItem(id) {
+    var n = db.notes.find(function(x) { return x.id === id; });
+    if (!n) return;
+    populateNoteGenreSelect();
+    document.getElementById('noteEditorHeading').textContent = 'メモ閲覧・編集';
+    document.getElementById('editNoteId').value = n.id;
+    var normDom = normalizeLegacyNoteDomain(n.domain);
+    var sel = document.getElementById('editNoteDomain');
+    if (Array.prototype.some.call(sel.options, function(o) { return o.value === normDom; })) {
+      sel.value = normDom;
+    }
+    document.getElementById('editNoteTitle').value = n.title || '';
+    document.getElementById('editNoteContent').value = n.content || '';
+    document.getElementById('editNoteExtraTags').value = (n.tags || []).join(' ');
+    document.getElementById('editNotePinned').checked = !!n.pinned;
+    document.getElementById('modalNoteDeleteBtn').classList.remove('hidden');
+
+    renderTagPickerChips('noteModalTagPickerArea', 'editNoteExtraTags');
+    document.getElementById('noteEditorModal').classList.remove('hidden');
+  }
+
+  function closeNoteComposer() {
+    document.getElementById('noteEditorModal').classList.add('hidden');
+  }
+
+  function saveNoteItem() {
+    var id = document.getElementById('editNoteId').value;
+    var domain = document.getElementById('editNoteDomain').value || getMasterOptions().noteGenres[0];
+    var title = document.getElementById('editNoteTitle').value.trim();
+    var content = document.getElementById('editNoteContent').value.trim();
+    var extraTagsRaw = document.getElementById('editNoteExtraTags').value.trim();
+    var pinned = document.getElementById('editNotePinned').checked;
+
+    if (!title && !content) return showToast('タイトルまたは本文を入力してください', true);
+    if (!title) title = content.split('\n')[0].slice(0, 24);
+
+    var tags = extractHashtagsFromText(title + ' ' + content + ' ' + extraTagsRaw);
+    var nowStr = formatDateLocal(new Date());
+
+    if (id) {
+      var idx = db.notes.findIndex(function(x) { return x.id === id; });
+      if (idx !== -1) {
+        db.notes[idx] = Object.assign({}, db.notes[idx], {
+          title: title, content: content, tags: tags, domain: domain, pinned: pinned, updatedAt: nowStr
+        });
+      }
+    } else {
+      db.notes.unshift({
+        id: 'note_' + Date.now(),
+        title: title,
+        content: content,
+        tags: tags,
+        domain: domain,
+        pinned: pinned,
+        updatedAt: nowStr,
+        createdAt: nowStr
+      });
+      if (typeof pushAutoSnsEvent === 'function') pushAutoSnsEvent('note_add', 'メモ作成: ' + title);
+    }
+
+    closeNoteComposer();
+    saveNotesImmediate();
+    showToast('メモを保存しました');
+  }
+
+  function deleteCurrentModalNote() {
+    var id = document.getElementById('editNoteId').value;
+    if (!id) return;
+    db.notes = db.notes.filter(function(x) { return x.id !== id; });
+    closeNoteComposer();
+    saveNotesImmediate();
+    showToast('メモを削除しました');
+  }
+
+  function copyCurrentModalNote() {
+    var title = document.getElementById('editNoteTitle').value;
+    var content = document.getElementById('editNoteContent').value;
+    var txt = (title ? title + '\n' : '') + content;
+    if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    showToast('コピーしました');
+  }
+
+  function toggleNotePin(id, ev) {
+    if (ev) ev.stopPropagation();
+    var n = db.notes.find(function(x) { return x.id === id; });
+    if (!n) return;
+    n.pinned = !n.pinned;
+    saveNotesImmediate();
+  }
+
+  function toggleNoteFavFilter() {
+    noteFilterFavOnly = !noteFilterFavOnly;
+    var btn = document.getElementById('noteFavOnlyBtn');
+    if (btn) {
+      btn.className = noteFilterFavOnly
+        ? 'px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-semibold shrink-0 transition'
+        : 'px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 hover:bg-slate-100 shrink-0 transition';
+    }
+    renderNotesWorkspace();
+  }
+
+  function selectNoteHashtag(tag, ev) {
+    if (ev) ev.stopPropagation();
+    noteSelectedHashtag = (noteSelectedHashtag === tag) ? '' : tag;
+    renderNotesWorkspace();
+  }
+
+  function renderNotesWorkspace() {
+    var listArea = document.getElementById('notesListArea');
+    var cloudArea = document.getElementById('noteHashtagCloudArea');
+    var genreBar = document.getElementById('noteGenreFilterBar');
+    if (!listArea || !cloudArea || !genreBar) return;
+
+    var q = (document.getElementById('noteSearchInput').value || '').trim().toLowerCase();
+    var genres = getMasterOptions().noteGenres;
+    if (noteSelectedGenre !== 'all' && genres.indexOf(noteSelectedGenre) === -1) {
+      noteSelectedGenre = 'all';
+    }
+
+    var gHtml = ['<button type="button" onclick="selectNoteGenreFilter(\'all\')" class="px-2 py-0.5 rounded text-[10px] font-semibold ' + (noteSelectedGenre === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600') + '">全ジャンル</button>'];
+    genres.forEach(function(g) {
+      var act = (noteSelectedGenre === g);
+      gHtml.push('<button type="button" data-g="' + escapeHtml(g) + '" onclick="selectNoteGenreFilter(this.getAttribute(\'data-g\'))" class="px-2 py-0.5 rounded text-[10px] font-semibold ' + (act ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600') + '">' + escapeHtml(g) + '</button>');
+    });
+    genreBar.innerHTML = gHtml.join('');
+
+    var tagCounts = {};
+    (db.notes || []).forEach(function(n) {
+      (n.tags || []).forEach(function(t) {
+        tagCounts[t] = (tagCounts[t] || 0) + 1;
+      });
+    });
+
+    var allTags = Object.keys(tagCounts).sort(function(a, b) { return tagCounts[b] - tagCounts[a]; });
+    cloudArea.innerHTML = allTags.map(function(tag) {
+      var active = (noteSelectedHashtag === tag);
+      return '<button type="button" data-tag="' + escapeHtml(tag) + '" onclick="selectNoteHashtag(this.getAttribute(\'data-tag\'), event)" class="px-2 py-0.5 rounded-full text-[10px] font-mono transition ' +
+        (active ? 'bg-slate-900 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200') + '">' +
+        escapeHtml(tag) + ' <span class="opacity-60">' + tagCounts[tag] + '</span>' +
+      '</button>';
+    }).join('');
+
+    var filtered = (db.notes || []).filter(function(n) {
+      if (noteFilterFavOnly && !n.pinned) return false;
+      var normGenre = normalizeLegacyNoteDomain(n.domain);
+      if (noteSelectedGenre !== 'all' && normGenre !== noteSelectedGenre) return false;
+      if (noteSelectedHashtag && (!n.tags || n.tags.indexOf(noteSelectedHashtag) === -1)) return false;
+      if (q) {
+        var hay = ((n.title || '') + ' ' + (n.content || '') + ' ' + (n.tags || []).join(' ')).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    }).sort(function(a, b) {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      return String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+    });
+
+    if (filtered.length === 0) {
+      listArea.innerHTML = '<div class="text-xs text-slate-400 text-center py-6">該当するメモはありません。「+ 新規メモ」から作成できます。</div>';
+      return;
+    }
+
+    listArea.innerHTML = filtered.map(function(n) {
+      var normGenre = normalizeLegacyNoteDomain(n.domain);
+      return '<div onclick="editNoteItem(\'' + n.id + '\')" class="p-2.5 rounded-xl border space-y-1 cursor-pointer hover:border-slate-400 transition ' + (n.pinned ? 'border-slate-400 bg-slate-50/70' : 'border-slate-200 bg-white') + '">' +
+        '<div class="flex items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-1.5 min-w-0 flex-1">' +
+            '<button type="button" onclick="toggleNotePin(\'' + n.id + '\', event)" class="text-xs shrink-0 ' + (n.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500') + '"><i class="fa-solid fa-star"></i></button>' +
+            '<span class="text-[8px] font-bold px-1.5 py-0.2 rounded bg-slate-900 text-white shrink-0">' + escapeHtml(normGenre) + '</span>' +
+            '<h3 class="text-xs font-bold text-slate-900 truncate">' + escapeHtml(n.title) + '</h3>' +
+          '</div>' +
+          '<span class="text-[8px] font-mono text-slate-400 shrink-0">' + escapeHtml(n.updatedAt || '') + '</span>' +
+        '</div>' +
+        '<div class="text-[11px] text-slate-600 line-clamp-2 whitespace-pre-wrap break-words leading-relaxed">' + escapeHtml(n.content) + '</div>' +
+        ((n.tags && n.tags.length > 0)
+          ? '<div class="flex items-center gap-1 flex-wrap pt-0.5">' +
+              n.tags.map(function(t) {
+                return '<span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">' + escapeHtml(t) + '</span>';
+              }).join('') +
+            '</div>'
+          : '') +
+      '</div>';
+    }).join('');
+  }
+
+  loadNotesLocal();
+  populateNoteGenreSelect();
+  App.on('masterOptions:changed', function() {
+    populateNoteGenreSelect();
+    renderNotesWorkspace();
+  });
+  setTimeout(syncNotesFromServer, 900);
+</script>
