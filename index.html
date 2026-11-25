@@ -1594,11 +1594,13 @@
     return Object.keys(cnt).sort(function(a, b) { return cnt[b] - cnt[a]; }).map(function(k) { return label[k]; });
   }
 
-  // 入力欄の下に並べる順: 付いているタグ → 選んだ親の子（最近の本など）→ 一緒に使ったタグ → 最近使ったタグ → よく使うタグ
-  function tagPool(items, current, pinned, limit) {
+  // 入力欄の下に並べる順: 付いているタグ → 同じサイトで使ったタグ → 選んだ親の子（最近の本など）→ 一緒に使ったタグ → 最近使ったタグ → よく使うタグ
+  // text: 入力中の本文。URL があれば、同じサイトのメモで使ったタグを先に出す
+  function tagPool(items, current, pinned, limit, text) {
     var cur = canonicalTags(current || []), rec = recentTags(items);
     var kids = rec.filter(function(t) { var pa = tagParent(t); return pa && hasTag(cur, pa); });
-    return uniqTags(cur.concat(kids, relatedTags(items, cur), rec, pinned || []))
+    var site = (text && typeof siteTags === 'function') ? siteTags(items, text) : [];
+    return uniqTags(cur.concat(site, kids, relatedTags(items, cur), rec, pinned || []))
       .filter(function(t) { return !hasTag(AUTO_TAGS, t); }).slice(0, limit || 14);
   }
 
@@ -1677,7 +1679,7 @@
     if (!bar) return;
     var current = ta ? extractHashtagsFromText(ta.value) : [];
     // 付いているタグは必ず見えるようにし、残りを候補で埋める
-    var pool = tagPool(/Task|Todo/.test(barId) ? db.todos : db.notes, current, getPinnedHashtags(), 14);
+    var pool = tagPool(db.notes, current, getPinnedHashtags(), 14, ta ? ta.value : '');
     var full = countUserTags(current) >= MAX_TAGS;
     var size = /^(quick|sns)/.test(barId) ? 'shrink-0 px-2.5 py-1.5 text-[12px]' : 'px-1.5 py-0.5 text-[9px]'; // 入力欄の下は指で押しやすく
     bar.innerHTML = pool.map(function(tag) {
@@ -1804,6 +1806,63 @@
       return b.date.localeCompare(a.date) || b.order - a.order;
     });
     return items;
+  }
+</script>
+
+  <script>
+  // ------------------------------------------------------------
+  // 他のアプリ（YouTube・ブラウザなど）からの共有を、メモの形にする
+  //   受け取り: sw.js が共有の内容を端末内（share-inbox）に置き、index.html?share=1 を開く
+  // ------------------------------------------------------------
+  var SHARE_URL_RE = /https?:\/\/[^\s<>"'「」]+/;
+  // 追跡用の付け足し（中身に関係しない）
+  var TRACKING_PARAMS = /^(utm_\w+|si|feature|fbclid|gclid|igshid|igsh|mc_cid|mc_eid|ref_src|ref_url|s|t_)$/;
+
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^(www|m|mobile)\./, ''); } catch (e) { return ''; }
+  }
+
+  // 追跡用のパラメータを外す。YouTube の再生位置（t）と動画 ID（v）は残す
+  function cleanSharedUrl(url) {
+    var u;
+    try { u = new URL(url); } catch (e) { return url; }
+    var keep = [];
+    u.searchParams.forEach(function(v, k) { if (!TRACKING_PARAMS.test(k)) keep.push([k, v]); });
+    u.search = '';
+    keep.forEach(function(p) { u.searchParams.append(p[0], p[1]); });
+    var out = u.toString();
+    return out.replace(/\?$/, '');
+  }
+
+  // {title, text, url} → {title, body}。題名は題名欄へ、URL と残りの文章を本文へ
+  function buildSharedMemo(data) {
+    var title = String((data && data.title) || '').trim();
+    var text = String((data && data.text) || '').trim();
+    var url = String((data && data.url) || '').trim();
+    var m = (url || text).match(SHARE_URL_RE);
+    url = m ? cleanSharedUrl(m[0]) : '';
+    if (m) text = text.replace(m[0], ' ');
+    text = text.replace(/[ \t　]+/g, ' ').replace(/^\s+|\s+$/g, '');
+    if (text === title) text = '';
+    // YouTube などは題名の後ろにサービス名が付く（「… - YouTube」）
+    title = title.replace(/\s+[-–|]\s+YouTube$/i, '');
+    if (!title && text && text.length <= 80 && text.indexOf('\n') === -1) { title = text; text = ''; }
+    return { title: title, body: [url, text].filter(Boolean).join('\n') };
+  }
+
+  // 本文の URL と同じサイトのメモで使ったタグ（多い順）
+  function siteTags(items, text) {
+    var hosts = [];
+    String(text || '').replace(new RegExp(SHARE_URL_RE.source, 'g'), function(u) { var h = hostOf(u); if (h && hosts.indexOf(h) === -1) hosts.push(h); return u; });
+    if (!hosts.length) return [];
+    var cnt = {}, label = {};
+    (items || []).forEach(function(n) {
+      var body = (n.title || '') + ' ' + (n.content || '');
+      var hit = (body.match(new RegExp(SHARE_URL_RE.source, 'g')) || []).some(function(u) { return hosts.indexOf(hostOf(u)) !== -1; });
+      if (!hit) return;
+      userTagsOf(n).forEach(function(t) { var k = tagKey(t); cnt[k] = (cnt[k] || 0) + 1; if (!label[k]) label[k] = t; });
+    });
+    return Object.keys(cnt).sort(function(a, b) { return cnt[b] - cnt[a]; }).map(function(k) { return label[k]; });
   }
 </script>
 
@@ -2223,6 +2282,7 @@
     <div class="flex items-center gap-1.5 pt-1">
       <button type="button" onclick="pickPhotos('sns')" title="写真を追加" aria-label="写真を追加" class="today-icon-btn"><i class="fa-solid fa-camera"></i></button>
       <button type="button" onclick="toggleSnsTitle()" id="snsTitleBtn" class="today-text-btn">題名</button>
+      <button type="button" onclick="pasteIntoMemo()" class="today-text-btn" title="コピーした URL や文章を貼り付け"><i class="fa-regular fa-clipboard mr-1"></i>貼り付け</button>
       <span id="snsSelectedDateLabel" class="text-[11px] text-slate-500 flex-1 text-right"></span>
       <button type="button" onclick="submitQuickSnsPost()" class="px-6 h-10 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-sm font-bold transition active:scale-95 shrink-0">保存</button>
     </div>
@@ -2425,6 +2485,53 @@
     var ti = document.getElementById('snsTitleInput');
     ti.classList.toggle('hidden');
     if (!ti.classList.contains('hidden')) ti.focus();
+  }
+
+  // ---- 共有・貼り付け: URL は整えて本文へ、題名は題名欄へ。書きかけがあれば後ろに足す ----
+  function putSharedIntoComposer(data) {
+    var m = buildSharedMemo(data);
+    if (!m.title && !m.body) return false;
+    var ta = document.getElementById('snsQuickPostInput'), ti = document.getElementById('snsTitleInput');
+    restoreSnsDraft();
+    if (m.title && !ti.value.trim()) { ti.value = m.title; ti.classList.remove('hidden'); }
+    else if (m.title) m.body = m.title + '\n' + m.body;
+    var cur = ta.value.replace(/\s+$/, '');
+    ta.value = (cur ? cur + '\n' : '') + m.body + '\n';
+    growTextarea(ta);
+    saveSnsDraft();
+    renderQuickHashtagBar('snsQuickTagBar', 'snsQuickPostInput');
+    window.scrollTo(0, 0);
+    return true;
+  }
+
+  // 共有で開かれたとき（sw.js が置いた内容を 1 回だけ取り出す）
+  function takeSharedItem() {
+    if (!window.caches) return;
+    var key = new URL('./__shared', location.href).href;
+    caches.open('share-inbox').then(function(c) {
+      return c.match(key).then(function(res) {
+        if (!res) return;
+        return res.json().then(function(data) {
+          c.delete(key);
+          if (putSharedIntoComposer(data)) showToast('共有された内容を入れました。タグを選んで保存');
+        });
+      });
+    }).catch(function(e) { console.error(e); });
+    if (/[?&]share=1/.test(location.search)) { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+  }
+
+  function pasteIntoMemo() {
+    if (!navigator.clipboard || !navigator.clipboard.readText) return showToast('この端末では貼り付けボタンが使えません。長押しで貼り付けてください', true);
+    navigator.clipboard.readText().then(function(t) {
+      t = String(t || '').trim();
+      if (!t) return showToast('コピーされた内容がありません', true);
+      if (SHARE_URL_RE.test(t)) putSharedIntoComposer({ text: t });
+      else {
+        var ta = document.getElementById('snsQuickPostInput'), cur = ta.value.replace(/\s+$/, '');
+        ta.value = (cur ? cur + '\n' : '') + t + '\n';
+        growTextarea(ta); saveSnsDraft(); renderQuickHashtagBar('snsQuickTagBar', 'snsQuickPostInput');
+      }
+    }, function() { showToast('貼り付けが許可されませんでした。長押しで貼り付けてください', true); });
   }
 
   // ---- タグの固定: 押したときのタグを、次のメモにも最初から付けておく ----
@@ -2858,6 +2965,9 @@
   App.on('data:loaded', function() {
     if (currentView === 'timeline') renderNotesWorkspace();
   });
+  window.addEventListener('DOMContentLoaded', function() { setTimeout(takeSharedItem, 0); });
+  // アプリを開いたまま共有されたときも受け取る
+  document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') takeSharedItem(); });
   document.addEventListener('keydown', function(e) {
     if (e.target && e.target.id === 'snsQuickPostInput' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); submitQuickSnsPost(); }
   });
