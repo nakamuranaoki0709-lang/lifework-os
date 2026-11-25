@@ -289,6 +289,51 @@
   .memo-sticky.is-on { background: var(--primary); border-color: var(--primary); color: #dcc791; }
   .memo-sticky-note { font-size: 12px; color: #775d2a; }
   .memo-sticky-note button { margin-left: 8px; font-weight: 700; text-decoration: underline; color: #475467; }
+  .memo-findtag { flex: none; display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); font-size: 12px; font-weight: 700; color: #344054; }
+  .memo-findtag i { font-size: 11px; color: #667085; }
+  .tag-picker { max-height: calc(88dvh - var(--kb, 0px)); }
+  .tag-search { display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px; background: #f7f8fa; }
+  .tag-search i { font-size: 13px; color: #98a2b3; }
+  .tag-search input { flex: 1; min-width: 0; padding: 11px 0; font-size: 16px; background: transparent; outline: none; }
+  .tag-results { display: flex; flex-wrap: wrap; gap: 6px; max-height: 40dvh; overflow-y: auto; align-content: flex-start; }
+  .memo-chip.is-new { border-style: dashed; color: #142445; }
+  .memo-chip.is-dim { opacity: 0.45; }
+  /* ヘッダー */
+  .head-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); }
+  .head-search i { font-size: 12px; color: #98a2b3; }
+  .head-search input { flex: 1; min-width: 0; font-size: 15px; color: #ffffff; background: transparent; outline: none; }
+  .head-search input::placeholder { color: #98a2b3; }
+  .head-btn { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; width: 38px; height: 36px; border-radius: 10px; color: #cbd2dc; font-size: 14px; }
+  .head-btn:active { background: rgba(255, 255, 255, 0.12); }
+  .head-sync { width: 44px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  /* # を打ったときのタグ一覧（縦に並べる） */
+  .tag-suggest { max-height: 42vh; overflow-y: auto; margin: 0 -4px; border-top: 1px solid var(--line); }
+  .tag-suggest-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0 8px; text-align: left; font-size: 15px; color: #111827; border-bottom: 1px solid #eef0f4; }
+  .tag-suggest-row i { width: 14px; font-size: 12px; color: #98a2b3; }
+  .tag-suggest-row span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .tag-suggest-row small { font-size: 12px; color: var(--muted); }
+  .tag-suggest-row.is-new { color: #142445; font-weight: 700; }
+  .tag-suggest-row:active { background: #f4f6fa; }
+  .memo-hash { flex: none; width: 40px; height: 36px; border-radius: 9px; border: 1px solid var(--line); font-size: 17px; font-weight: 800; color: #142445; }
+  .memo-sticky-btn.is-on { background: var(--primary); color: #dcc791; }
+  /* 絞り込み中 */
+  .feed-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--primary); color: #ffffff; font-size: 14px; font-weight: 700; }
+  .feed-filter small { margin-left: 8px; font-weight: 500; color: #aebcd8; }
+  .feed-filter button { width: 32px; height: 28px; color: #cbd2dc; }
+  /* タグの一覧と編集 */
+  .tag-manage-list { max-height: 58dvh; overflow-y: auto; }
+  .tag-manage-row { display: flex; align-items: center; gap: 2px; min-height: 48px; border-bottom: 1px solid #eef0f4; }
+  .tag-manage-name { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 4px; text-align: left; font-size: 15px; color: #111827; }
+  .tag-manage-name span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .tag-manage-name small { font-size: 12px; color: var(--muted); }
+  .tag-manage-row.is-edit { gap: 6px; padding: 6px 0; }
+  .tag-manage-row.is-edit input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 9px; font-size: 16px; outline: none; }
+  .tag-del-confirm { flex: none; padding: 8px 10px; border-radius: 9px; background: #9c3a43; color: #ffffff; font-size: 12px; font-weight: 700; }
+  .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; max-height: 156px; overflow-y: auto; align-content: flex-start; }
+  .tag-wrap .memo-chip { padding: 7px 11px; font-size: 13px; }
+  .memo-tagline .tag-search input { padding: 9px 0; }
+  .memo-tagline .memo-sticky { width: 42px; height: 40px; font-size: 14px; }
   .memo-chip { padding: 8px 12px; border-radius: 9px; border: 1px solid var(--line); background: #ffffff; font-size: 13px; font-weight: 700; color: #344054; }
   .memo-chip.is-on { background: var(--primary); border-color: var(--primary); color: #ffffff; }
   .memo-tag-preview { font-size: 13px; line-height: 1.5; color: #475467; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
@@ -390,7 +435,7 @@
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="theme-color" content="#0a101d">
   <meta name="referrer" content="no-referrer">
-  <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(79,105,163,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(79,105,163,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.visible{visibility:visible}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.-right-1{right:-.25rem}.-top-1{top:-.25rem}.bottom-3{bottom:.75rem}.bottom-4{bottom:1rem}.left-2{left:.5rem}.left-3{left:.75rem}.right-2{right:.5rem}.top-0{top:0}.top-1\/2{top:50%}.top-11{top:2.75rem}.top-2{top:.5rem}.top-3{top:.75rem}.z-30{z-index:30}.z-50{z-index:50}.z-\[9998\]{z-index:9998}.z-\[9999\]{z-index:9999}.mx-auto{margin-left:auto;margin-right:auto}.-mb-1{margin-bottom:-.25rem}.mb-0\.5{margin-bottom:.125rem}.mr-0\.5{margin-right:.125rem}.mr-1{margin-right:.25rem}.mr-1\.5{margin-right:.375rem}.mt-1{margin-top:.25rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:.375rem}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-20{height:5rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-full{height:100%}.max-h-16{max-height:4rem}.max-h-\[75vh\]{max-height:75vh}.max-h-full{max-height:100%}.w-1\.5{width:.375rem}.w-11{width:2.75rem}.w-20{width:5rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-full{width:100%}.max-w-full{max-width:100%}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}.resize{resize:both}.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-cols-\[1fr_118px\]{grid-template-columns:1fr 118px}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l-2{border-left-width:2px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(223 217 200/var(--tw-border-opacity,1))}.border-blue-900{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(209 220 215/var(--tw-border-opacity,1))}.border-indigo-950{--tw-border-opacity:1;border-color:rgb(12 23 46/var(--tw-border-opacity,1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(226 207 208/var(--tw-border-opacity,1))}.border-sky-400\/25{border-color:rgba(127,148,192,.25)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(238 240 244/var(--tw-border-opacity,1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 230 236/var(--tw-border-opacity,1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 210 220/var(--tw-border-opacity,1))}.border-white\/10{border-color:hsla(0,0%,100%,.1)}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(203 171 99/var(--tw-bg-opacity,1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(248 247 244/var(--tw-bg-opacity,1))}.bg-black\/95{background-color:rgba(0,0,0,.95)}.bg-blue-900{--tw-bg-opacity:1;background-color:rgb(20 36 69/var(--tw-bg-opacity,1))}.bg-blue-950{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(99 164 142/var(--tw-bg-opacity,1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(245 247 246/var(--tw-bg-opacity,1))}.bg-indigo-950{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.bg-rose-400{--tw-bg-opacity:1;background-color:rgb(196 101 108/var(--tw-bg-opacity,1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(249 245 245/var(--tw-bg-opacity,1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(178 74 82/var(--tw-bg-opacity,1))}.bg-rose-900{--tw-bg-opacity:1;background-color:rgb(20 36 69/var(--tw-bg-opacity,1))}.bg-sky-400{--tw-bg-opacity:1;background-color:rgb(127 148 192/var(--tw-bg-opacity,1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(238 240 244/var(--tw-bg-opacity,1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 230 236/var(--tw-bg-opacity,1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(247 248 250/var(--tw-bg-opacity,1))}.bg-slate-50\/50{background-color:rgba(247,248,250,.5)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(17 24 39/var(--tw-bg-opacity,1))}.bg-slate-900\/60{background-color:rgba(17,24,39,.6)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(10 16 29/var(--tw-bg-opacity,1))}.bg-slate-950\/50{background-color:rgba(10,16,29,.5)}.bg-slate-950\/60{background-color:rgba(10,16,29,.6)}.bg-slate-950\/95{background-color:rgba(10,16,29,.95)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/10{background-color:hsla(0,0%,100%,.1)}.bg-white\/15{background-color:hsla(0,0%,100%,.15)}.bg-white\/20{background-color:hsla(0,0%,100%,.2)}.object-contain{-o-object-fit:contain;object-fit:contain}.object-cover{-o-object-fit:cover;object-fit:cover}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-1\.5{padding-bottom:.375rem}.pl-2\.5{padding-left:.625rem}.pl-8{padding-left:2rem}.pr-2{padding-right:.5rem}.pt-1{padding-top:.25rem}.pt-2\.5{padding-top:.625rem}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[14px\]{font-size:14px}.text-\[15px\]{font-size:15px}.text-\[9px\]{font-size:9px}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-amber-400{--tw-text-opacity:1;color:rgb(203 171 99/var(--tw-text-opacity,1))}.text-amber-600{--tw-text-opacity:1;color:rgb(147 116 52/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(119 93 42/var(--tw-text-opacity,1))}.text-amber-900{--tw-text-opacity:1;color:rgb(20 36 69/var(--tw-text-opacity,1))}.text-blue-700{--tw-text-opacity:1;color:rgb(40 67 121/var(--tw-text-opacity,1))}.text-blue-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-blue-950{--tw-text-opacity:1;color:rgb(12 23 46/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(99 164 142/var(--tw-text-opacity,1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-rose-600{--tw-text-opacity:1;color:rgb(156 58 67/var(--tw-text-opacity,1))}.text-rose-700{--tw-text-opacity:1;color:rgb(130 47 55/var(--tw-text-opacity,1))}.text-rose-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-rose-900{--tw-text-opacity:1;color:rgb(20 36 69/var(--tw-text-opacity,1))}.text-sky-300{--tw-text-opacity:1;color:rgb(174 188 216/var(--tw-text-opacity,1))}.text-sky-400{--tw-text-opacity:1;color:rgb(127 148 192/var(--tw-text-opacity,1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 230 236/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(124 134 152/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(93 103 120/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 84 103/var(--tw-text-opacity,1))}.text-slate-700{--tw-text-opacity:1;color:rgb(52 64 84/var(--tw-text-opacity,1))}.text-slate-800{--tw-text-opacity:1;color:rgb(31 41 55/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(17 24 39/var(--tw-text-opacity,1))}.text-slate-950{--tw-text-opacity:1;color:rgb(10 16 29/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.decoration-slate-300{text-decoration-color:#cbd2dc}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-40{opacity:.4}.opacity-60{opacity:.6}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.invert{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.invert{--tw-invert:invert(100%)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1)}.duration-150,.transition-all{transition-duration:.15s}.selection\:bg-blue-950 ::-moz-selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:bg-blue-950 ::selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:text-white ::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white ::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:bg-blue-950::-moz-selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:bg-blue-950::selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:text-white::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:border-indigo-900:hover{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.hover\:border-slate-400:hover{--tw-border-opacity:1;border-color:rgb(124 134 152/var(--tw-border-opacity,1))}.hover\:bg-blue-800:hover{--tw-bg-opacity:1;background-color:rgb(29 50 94/var(--tw-bg-opacity,1))}.hover\:bg-blue-900:hover{--tw-bg-opacity:1;background-color:rgb(20 36 69/var(--tw-bg-opacity,1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 230 236/var(--tw-bg-opacity,1))}.hover\:bg-white\/30:hover{background-color:hsla(0,0%,100%,.3)}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(17 24 39/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:underline:hover{text-decoration-line:underline}.focus\:border-blue-900:focus{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.focus\:border-blue-950:focus{--tw-border-opacity:1;border-color:rgb(12 23 46/var(--tw-border-opacity,1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width:640px){.sm\:items-center{align-items:center}.sm\:px-4{padding-left:1rem;padding-right:1rem}}</style>
+  <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(79,105,163,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(79,105,163,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.pointer-events-none{pointer-events:none}.visible{visibility:visible}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.-right-1{right:-.25rem}.-top-1{top:-.25rem}.bottom-3{bottom:.75rem}.bottom-4{bottom:1rem}.left-2{left:.5rem}.left-3{left:.75rem}.right-2{right:.5rem}.top-0{top:0}.top-1\/2{top:50%}.top-11{top:2.75rem}.top-2{top:.5rem}.z-30{z-index:30}.z-50{z-index:50}.z-\[9998\]{z-index:9998}.z-\[9999\]{z-index:9999}.mx-auto{margin-left:auto;margin-right:auto}.-mb-1{margin-bottom:-.25rem}.mb-0\.5{margin-bottom:.125rem}.mr-0\.5{margin-right:.125rem}.mr-1{margin-right:.25rem}.mr-1\.5{margin-right:.375rem}.mt-1{margin-top:.25rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:.375rem}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-12{height:3rem}.h-2{height:.5rem}.h-20{height:5rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-full{height:100%}.max-h-16{max-height:4rem}.max-h-\[75vh\]{max-height:75vh}.max-h-full{max-height:100%}.w-1\.5{width:.375rem}.w-11{width:2.75rem}.w-2{width:.5rem}.w-20{width:5rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-full{width:100%}.max-w-full{max-width:100%}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}.resize{resize:both}.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-cols-\[1fr_118px\]{grid-template-columns:1fr 118px}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l-2{border-left-width:2px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(223 217 200/var(--tw-border-opacity,1))}.border-blue-900{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(209 220 215/var(--tw-border-opacity,1))}.border-indigo-950{--tw-border-opacity:1;border-color:rgb(12 23 46/var(--tw-border-opacity,1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(226 207 208/var(--tw-border-opacity,1))}.border-sky-400\/25{border-color:rgba(127,148,192,.25)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(238 240 244/var(--tw-border-opacity,1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 230 236/var(--tw-border-opacity,1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 210 220/var(--tw-border-opacity,1))}.border-white\/10{border-color:hsla(0,0%,100%,.1)}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(203 171 99/var(--tw-bg-opacity,1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(248 247 244/var(--tw-bg-opacity,1))}.bg-black\/95{background-color:rgba(0,0,0,.95)}.bg-blue-900{--tw-bg-opacity:1;background-color:rgb(20 36 69/var(--tw-bg-opacity,1))}.bg-blue-950{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(99 164 142/var(--tw-bg-opacity,1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(245 247 246/var(--tw-bg-opacity,1))}.bg-indigo-950{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.bg-rose-400{--tw-bg-opacity:1;background-color:rgb(196 101 108/var(--tw-bg-opacity,1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(249 245 245/var(--tw-bg-opacity,1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(178 74 82/var(--tw-bg-opacity,1))}.bg-sky-400{--tw-bg-opacity:1;background-color:rgb(127 148 192/var(--tw-bg-opacity,1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(238 240 244/var(--tw-bg-opacity,1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 230 236/var(--tw-bg-opacity,1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(247 248 250/var(--tw-bg-opacity,1))}.bg-slate-50\/50{background-color:rgba(247,248,250,.5)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(17 24 39/var(--tw-bg-opacity,1))}.bg-slate-900\/60{background-color:rgba(17,24,39,.6)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(10 16 29/var(--tw-bg-opacity,1))}.bg-slate-950\/50{background-color:rgba(10,16,29,.5)}.bg-slate-950\/60{background-color:rgba(10,16,29,.6)}.bg-slate-950\/95{background-color:rgba(10,16,29,.95)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/20{background-color:hsla(0,0%,100%,.2)}.object-contain{-o-object-fit:contain;object-fit:contain}.object-cover{-o-object-fit:cover;object-fit:cover}.p-2{padding:.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-1\.5{padding-bottom:.375rem}.pl-2\.5{padding-left:.625rem}.pt-1{padding-top:.25rem}.pt-2\.5{padding-top:.625rem}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[14px\]{font-size:14px}.text-\[15px\]{font-size:15px}.text-\[9px\]{font-size:9px}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-widest{letter-spacing:.1em}.text-amber-400{--tw-text-opacity:1;color:rgb(203 171 99/var(--tw-text-opacity,1))}.text-amber-600{--tw-text-opacity:1;color:rgb(147 116 52/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(119 93 42/var(--tw-text-opacity,1))}.text-amber-900{--tw-text-opacity:1;color:rgb(20 36 69/var(--tw-text-opacity,1))}.text-blue-700{--tw-text-opacity:1;color:rgb(40 67 121/var(--tw-text-opacity,1))}.text-blue-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-blue-950{--tw-text-opacity:1;color:rgb(12 23 46/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(99 164 142/var(--tw-text-opacity,1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-rose-600{--tw-text-opacity:1;color:rgb(156 58 67/var(--tw-text-opacity,1))}.text-rose-700{--tw-text-opacity:1;color:rgb(130 47 55/var(--tw-text-opacity,1))}.text-rose-800{--tw-text-opacity:1;color:rgb(29 50 94/var(--tw-text-opacity,1))}.text-rose-900{--tw-text-opacity:1;color:rgb(20 36 69/var(--tw-text-opacity,1))}.text-sky-400{--tw-text-opacity:1;color:rgb(127 148 192/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(124 134 152/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(93 103 120/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 84 103/var(--tw-text-opacity,1))}.text-slate-700{--tw-text-opacity:1;color:rgb(52 64 84/var(--tw-text-opacity,1))}.text-slate-800{--tw-text-opacity:1;color:rgb(31 41 55/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(17 24 39/var(--tw-text-opacity,1))}.text-slate-950{--tw-text-opacity:1;color:rgb(10 16 29/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.decoration-slate-300{text-decoration-color:#cbd2dc}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-40{opacity:.4}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.invert{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.invert{--tw-invert:invert(100%)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1)}.duration-150,.transition-all{transition-duration:.15s}.selection\:bg-blue-950 ::-moz-selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:bg-blue-950 ::selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:text-white ::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white ::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:bg-blue-950::-moz-selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:bg-blue-950::selection{--tw-bg-opacity:1;background-color:rgb(12 23 46/var(--tw-bg-opacity,1))}.selection\:text-white::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:border-indigo-900:hover{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.hover\:border-slate-400:hover{--tw-border-opacity:1;border-color:rgb(124 134 152/var(--tw-border-opacity,1))}.hover\:bg-blue-800:hover{--tw-bg-opacity:1;background-color:rgb(29 50 94/var(--tw-bg-opacity,1))}.hover\:bg-blue-900:hover{--tw-bg-opacity:1;background-color:rgb(20 36 69/var(--tw-bg-opacity,1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 230 236/var(--tw-bg-opacity,1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(17 24 39/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:underline:hover{text-decoration-line:underline}.focus\:border-blue-900:focus{--tw-border-opacity:1;border-color:rgb(20 36 69/var(--tw-border-opacity,1))}.focus\:border-blue-950:focus{--tw-border-opacity:1;border-color:rgb(12 23 46/var(--tw-border-opacity,1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width:640px){.sm\:items-center{align-items:center}.sm\:px-4{padding-left:1rem;padding-right:1rem}}</style>
   <link rel="stylesheet" href="./vendor/icons.css">
   <script>window.LWOS_ENDPOINT="https://script.google.com/macros/s/AKfycbwHeZBjxcy6UtgIbRMP2mml5KSe902_VN-hr93ulgtg0JlrNX69aFHjHEDUfd_YkS8/exec";if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(function(e){console.warn(e);});</script>
 </head>
@@ -403,11 +448,15 @@
 
   <div id="mainShellWrap" class="flex flex-col">
     <header class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-md text-white border-b border-white/10">
-      <div class="max-w-lg mx-auto px-3 h-10 flex items-center justify-between gap-2">
-        <span class="text-[14px] font-bold tracking-wide">メモ</span>
-        <button id="syncStatusBadge" onclick="manualSyncNow()" title="タップで同期の状態を表示" class="px-2 h-6 rounded-md text-[10px] font-semibold flex items-center gap-1.5 bg-white/10 text-slate-200 border border-white/10 transition active:scale-95">
-          <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span id="syncStatusText">SYNCED</span>
-          <i id="refreshIcon" class="fa-solid fa-rotate text-[9px]"></i>
+      <div class="max-w-lg mx-auto px-2.5 h-12 flex items-center gap-2">
+        <label class="head-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" id="snsSearchInput" oninput="onFeedSearchInput()" enterkeyhint="search" autocomplete="off" placeholder="メモを検索">
+        </label>
+        <button type="button" onclick="openTagManage()" class="head-btn" title="タグの一覧と編集" aria-label="タグの一覧と編集"><i class="fa-solid fa-tags"></i></button>
+        <button id="syncStatusBadge" onclick="manualSyncNow()" title="タップで同期の状態を表示" class="head-btn head-sync">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400"></span><span id="syncStatusText" class="sr-only">SYNCED</span>
+          <i id="refreshIcon" class="fa-solid fa-rotate text-[10px]"></i>
         </button>
       </div>
     </header>
@@ -1604,6 +1653,83 @@
       .filter(function(t) { return !hasTag(AUTO_TAGS, t); }).slice(0, limit || 14);
   }
 
+  // ---- タグの検索 ----
+  // ひらがな・カタカナ、全角・半角、大文字・小文字の違いを無視して比べる
+  function foldTagText(s) {
+    return String(s == null ? '' : s).normalize('NFKC').toLowerCase().replace(/^#+/, '')
+      .replace(/[\u30a1-\u30f6]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  }
+
+  // 使ったことのあるタグを、最近使った順 → よく使う順 → 登録だけのもの、で並べる
+  function allKnownTags(items) {
+    return uniqTags(recentTags(items).concat(getAllKnownHashtags(), getPinnedHashtags())).filter(function(t) { return !hasTag(AUTO_TAGS, t); });
+  }
+
+  // 前方一致（親・子それぞれの名前の頭）→ 途中に含む、の順。並びは元の順（最近使った順）を保つ
+  function searchTags(all, query) {
+    var q = foldTagText(query);
+    if (!q) return all.slice();
+    var head = [], mid = [];
+    all.forEach(function(t) {
+      var f = foldTagText(t);
+      if (f.indexOf(q) === 0 || f.split('/').some(function(part) { return part.indexOf(q) === 0; })) head.push(t);
+      else if (f.indexOf(q) !== -1) mid.push(t);
+    });
+    return head.concat(mid);
+  }
+
+  // ---- タグの名前の変更・統合・削除（全部のメモに反映する） ----
+  // 本文のタグを fn で置き換える。fn が '' を返せば外す、undefined ならそのまま。
+  // 同じタグが 2 回になったら後ろを外す（統合したとき）。URL の中は触らない
+  function mapTagsInText(text, fn) {
+    var seen = {};
+    return splitByUrl(text).map(function(seg) {
+      if (seg.url) return seg.url;
+      return seg.text.replace(TAG_PATTERN, function(m) {
+        var cur = normalizeTag(m), out = fn(cur);
+        if (out === undefined) out = cur;
+        if (!out) return '\u0000';
+        var k = tagKey(out);
+        if (seen[k]) return '\u0000';
+        seen[k] = true;
+        return out === cur ? m : out;
+      });
+    }).join('').replace(/[ \u3000]?\u0000/g, '').replace(/^[ \u3000]+/, '');
+  }
+
+  function applyTagChange(notes, fn) {
+    var changed = [];
+    (notes || []).forEach(function(n) {
+      var before = JSON.stringify(n);
+      var title = mapTagsInText(n.title || '', fn), content = mapTagsInText(n.content || '', fn);
+      var tags = uniqTags((n.tags || []).map(function(t) { var o = fn(normalizeTag(t)); return o === undefined ? t : o; }).filter(Boolean));
+      if (title === (n.title || '') && content === (n.content || '') && JSON.stringify(tags) === JSON.stringify(uniqTags(n.tags || []))) return;
+      changed.push({ id: n.id, before: JSON.parse(before) });
+      if (n.title !== undefined || title) n.title = title;
+      n.content = content;
+      n.tags = tags;
+    });
+    return changed;
+  }
+
+  // 名前の変更。親を変えると子も変わる（#読書 → #本 なら #読書/書名 → #本/書名）。既にある名前にすると統合になる
+  function renameTagInNotes(notes, from, to) {
+    var f = normalizeTag(from), t = normalizeTag(to), k = tagKey(f);
+    if (!f || !t || tagKey(t) === k) return [];
+    return applyTagChange(notes, function(cur) {
+      var ck = tagKey(cur);
+      if (ck === k) return t;
+      if (ck.indexOf(k + '/') === 0) return t + cur.slice(f.length);
+      return undefined;
+    });
+  }
+
+  // 削除（そのタグだけ。子のタグは残す）。メモの本文は残る
+  function deleteTagFromNotes(notes, tag) {
+    var k = tagKey(tag);
+    return applyTagChange(notes, function(cur) { return tagKey(cur) === k ? '' : undefined; });
+  }
+
   // 既にある表記に合わせる
   function canonicalTags(list) {
     var idx = buildTagIndex();
@@ -1679,7 +1805,7 @@
     if (!bar) return;
     var current = ta ? extractHashtagsFromText(ta.value) : [];
     // 付いているタグは必ず見えるようにし、残りを候補で埋める
-    var pool = tagPool(db.notes, current, getPinnedHashtags(), 14, ta ? ta.value : '');
+    var pool = tagPool(db.notes, current, getPinnedHashtags(), barId === 'snsQuickTagBar' ? Math.max(6, current.length + 3) : 14, ta ? ta.value : '');
     var full = countUserTags(current) >= MAX_TAGS;
     var size = /^(quick|sns)/.test(barId) ? 'shrink-0 px-2.5 py-1.5 text-[12px]' : 'px-1.5 py-0.5 text-[9px]'; // 入力欄の下は指で押しやすく
     bar.innerHTML = pool.map(function(tag) {
@@ -1718,24 +1844,35 @@
     toggleHashtagInTextarea(textareaId, barId, tag);
   }
 
+  // 使った回数（親子はそれぞれ別に数える）
+  function tagCounts(items) {
+    var c = {};
+    (items || []).forEach(function(n) { userTagsOf(n).forEach(function(t) { c[tagKey(t)] = (c[tagKey(t)] || 0) + 1; }); });
+    return c;
+  }
+
+  // 本文で # を打つと、入力欄の下にタグを縦に並べる。続けて打つと絞り込む
   function handleHashtagTyping(ta, suggestBoxId) {
     var box = document.getElementById(suggestBoxId);
     if (!box || !ta) return;
-    var before = ta.value.slice(0, ta.selectionStart || ta.value.length);
+    var before = ta.value.slice(0, ta.selectionStart || 0);
     var m = before.match(/(?:^|[^A-Za-z0-9&\/])([#＃][^\s#＃、。，．,.!?！？]*)$/);
-    var matches = [];
-    if (m) {
-      var key = tagKey(m[1]);
-      matches = getCombinedHashtagPool().filter(function(t) { return tagKey(t).indexOf(key || '#') === 0; }).slice(0, 6);
-      if (key && !hasTag(matches, m[1])) matches.push(normalizeTag(m[1]));
-    }
-    box.classList.toggle('hidden', matches.length === 0);
-    box.innerHTML = matches.length === 0 ? '' : '<span class="text-[9px] font-mono text-sky-300 mr-1">候補:</span>' +
-      matches.map(function(tg) {
-        return '<button type="button" data-tg="' + escapeHtml(tg) + '" onclick="applySuggestedHashtag(\'' + ta.id + '\', \'' + suggestBoxId + '\', this.getAttribute(\'data-tg\'))" class="px-1.5 py-0.5 rounded bg-white/15 hover:bg-white/30 text-white font-mono font-bold">' +
-          escapeHtml(tg) +
-        '</button>';
-      }).join('');
+    if (!m || document.activeElement !== ta) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+    var q = m[1].replace(/^[#＃]/, '');
+    var cur = extractHashtagsFromText(ta.value.slice(0, before.length - m[1].length) + ' ' + ta.value.slice(before.length));
+    var all = allKnownTags(db.notes);
+    var list = q ? searchTags(all, q) : uniqTags(tagPool(db.notes, cur, getPinnedHashtags(), 40, ta.value).concat(all));
+    list = list.filter(function(t) { return !hasTag(cur, t); }).slice(0, 50);
+    var fresh = normalizeTag(q), counts = tagCounts(db.notes);
+    var exact = fresh && all.some(function(t) { return tagKey(t) === tagKey(fresh); });
+    var row = function(t, isNew) {
+      return '<button type="button" data-tg="' + escapeHtml(t) + '" onclick="applySuggestedHashtag(\'' + ta.id + '\', \'' + suggestBoxId + '\', this.getAttribute(\'data-tg\'))" class="tag-suggest-row' + (isNew ? ' is-new' : '') + '">' +
+        '<i class="fa-solid ' + (isNew ? 'fa-plus' : 'fa-hashtag') + '"></i><span>' + escapeHtml(t.replace(/^#/, '')) + (isNew ? ' を作る' : '') + '</span>' +
+        (!isNew && counts[tagKey(t)] ? '<small>' + counts[tagKey(t)] + '</small>' : '') + '</button>';
+    };
+    var html = list.map(function(t) { return row(t, false); }).join('') + (fresh && !exact && !hasTag(cur, fresh) ? row(fresh, true) : '');
+    box.classList.toggle('hidden', !html);
+    box.innerHTML = html;
   }
 
   function applySuggestedHashtag(textareaId, suggestBoxId, tag) {
@@ -1751,6 +1888,7 @@
     ta.selectionStart = ta.selectionEnd = before.length + tag.length + 1;
     if (box) box.classList.add('hidden');
     ta.dispatchEvent(new Event('input'));
+    if (box) box.classList.add('hidden');
     renderQuickHashtagBar(TAG_BAR_OF[textareaId], textareaId);
   }
 
@@ -2270,39 +2408,23 @@
   <!-- メモの入力 -->
   <div class="card-surface memo-compose">
     <input type="text" id="snsTitleInput" oninput="saveSnsDraft()" placeholder="題名（任意）" class="memo-title hidden">
-    <textarea id="snsQuickPostInput" rows="3" oninput="growTextarea(this); saveSnsDraft(); handleHashtagTyping(this, 'snsQuickSuggestBox'); renderQuickHashtagBar('snsQuickTagBar', 'snsQuickPostInput');" placeholder="メモ（# でタグ）" class="memo-input"></textarea>
+    <textarea id="snsQuickPostInput" rows="3" oninput="growTextarea(this); saveSnsDraft(); handleHashtagTyping(this, 'snsQuickSuggestBox');" onclick="handleHashtagTyping(this, 'snsQuickSuggestBox')" onblur="setTimeout(function() { handleHashtagTyping(document.getElementById('snsQuickPostInput'), 'snsQuickSuggestBox'); }, 150)" placeholder="メモ（# でタグ）" class="memo-input"></textarea>
     <div id="photoBar_sns" class="hidden flex items-center gap-2 overflow-x-auto py-1"></div>
-    <div id="snsQuickSuggestBox" class="hidden flex items-center gap-1 flex-wrap p-1 rounded-md bg-blue-950 text-white text-[10px] shadow-md"></div>
-    <div class="memo-tagline">
-      <button type="button" id="snsStickyBtn" onclick="toggleStickyTags('snsQuickPostInput')" class="memo-sticky" title="次のメモにも同じタグを付ける"><i class="fa-solid fa-thumbtack"></i></button>
-      <div id="snsQuickTagBar" class="tag-row"></div>
-      <button type="button" onclick="promptAddCustomHashtag('snsQuickPostInput', 'snsQuickTagBar')" class="memo-addtag" aria-label="新しいタグ">＋</button>
-    </div>
+    <div id="snsQuickSuggestBox" class="tag-suggest hidden" onpointerdown="event.preventDefault()"></div>
     <div id="snsStickyNote" class="memo-sticky-note hidden"></div>
     <div class="flex items-center gap-1.5 pt-1">
+      <button type="button" onpointerdown="event.preventDefault()" onclick="typeHashInMemo()" class="memo-hash" title="タグを付ける" aria-label="タグを付ける">#</button>
+      <button type="button" id="snsStickyBtn" onclick="toggleStickyTags('snsQuickPostInput')" class="today-icon-btn memo-sticky-btn" title="次のメモにも同じタグを付ける" aria-label="タグを固定"><i class="fa-solid fa-thumbtack"></i></button>
       <button type="button" onclick="pickPhotos('sns')" title="写真を追加" aria-label="写真を追加" class="today-icon-btn"><i class="fa-solid fa-camera"></i></button>
       <button type="button" onclick="toggleSnsTitle()" id="snsTitleBtn" class="today-text-btn">題名</button>
-      <button type="button" onclick="pasteIntoMemo()" class="today-text-btn" title="コピーした URL や文章を貼り付け"><i class="fa-regular fa-clipboard mr-1"></i>貼り付け</button>
+      <button type="button" onclick="pasteIntoMemo()" class="today-icon-btn" title="コピーした URL や文章を貼り付け" aria-label="貼り付け"><i class="fa-regular fa-clipboard"></i></button>
       <span id="snsSelectedDateLabel" class="text-[11px] text-slate-500 flex-1 text-right"></span>
       <button type="button" onclick="submitQuickSnsPost()" class="px-6 h-10 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-sm font-bold transition active:scale-95 shrink-0">保存</button>
     </div>
   </div>
 
-  <!-- コンパクト検索 ＆ ハッシュタグ集計・絞り込み -->
-  <div class="card-surface p-2 space-y-1.5">
-    <div class="flex items-center gap-1.5">
-      <div class="relative flex-1">
-        <i class="fa-solid fa-magnifying-glass text-xs text-slate-400 absolute left-3 top-3"></i>
-        <input type="search" id="snsSearchInput" oninput="onFeedSearchInput()" placeholder="メモを検索" class="w-full pl-8 pr-2 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none focus:border-blue-950">
-      </div>
-      <button type="button" id="snsClearTagFilterBtn" onclick="clearSnsTagFilter()" class="px-2 py-1 rounded-md bg-rose-900 text-white text-[9px] font-bold hidden shrink-0">
-        解除
-      </button>
-    </div>
-
-    <div id="snsFilterTagsBar" class="flex items-center gap-1 flex-wrap"></div>
-    <div id="feedResultSummary" class="text-[11px] text-slate-600 hidden"></div>
-  </div>
+  <!-- 絞り込み中の表示 -->
+  <div id="feedFilterBar" class="feed-filter hidden"></div>
 
   <!-- 投稿ストリーム一覧 -->
   <div id="snsTimelineFeedList" class="space-y-2.5"></div>
@@ -2314,22 +2436,37 @@
   <button type="button" id="undoBtn" class="px-3 py-1.5 rounded-lg bg-white text-slate-950 text-xs font-bold shrink-0">元に戻す</button>
 </div>
 
-<!-- あとからタグを付ける -->
+<!-- タグの一覧と編集（ヘッダーのタグボタン） -->
+<div id="tagManageSheet" class="sheet hidden" onclick="if (event.target === this) closeSheet('tagManageSheet')">
+  <div class="sheet-panel tag-picker">
+    <div class="sheet-grip"></div>
+    <div class="today-head"><h2>タグ</h2><span id="tagManageCount" class="today-none"></span></div>
+    <div class="tag-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="tagManageSearch" oninput="renderTagManage()" autocomplete="off" placeholder="タグを探す">
+    </div>
+    <div id="tagManageList" class="tag-manage-list"></div>
+    <button type="button" onclick="closeSheet('tagManageSheet')" class="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold">閉じる</button>
+  </div>
+</div>
+
+<!-- タグを探して付ける（入力中のメモ・保存したメモ） -->
 <div id="noteTagSheet" class="sheet hidden" onclick="if (event.target === this) closeSheet('noteTagSheet')">
-  <div class="sheet-panel">
+  <div class="sheet-panel tag-picker">
     <div class="sheet-grip"></div>
     <div id="noteTagPreview" class="memo-tag-preview"></div>
-    <div class="today-group"><span>付いているタグ（タップで外す）</span><span id="noteTagCount"></span></div>
-    <div id="noteTagCurrent" class="flex flex-wrap gap-1.5"></div>
-    <form onsubmit="event.preventDefault(); addNoteTagFromInput()" class="flex items-center gap-2">
-      <input type="text" id="noteTagInput" enterkeyhint="done" placeholder="新しいタグ（例: 読書/書名）" class="sheet-input flex-1">
-      <button type="submit" class="today-text-btn shrink-0">付ける</button>
+    <div class="flex items-center gap-2">
+      <div id="noteTagCurrent" class="flex flex-wrap gap-1.5 flex-1"></div>
+      <span id="noteTagCount" class="today-none shrink-0"></span>
+    </div>
+    <form onsubmit="event.preventDefault(); addTopTagFromSearch()" class="tag-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="noteTagInput" oninput="renderNoteTagSheet()" enterkeyhint="done" autocomplete="off" placeholder="タグを探す・新しく作る（例: 読書/書名）">
     </form>
-    <div class="today-group"><span>候補</span></div>
-    <div id="noteTagPool" class="flex flex-wrap gap-1.5"></div>
+    <div id="noteTagPool" class="tag-results"></div>
     <div class="flex items-center gap-2 pt-1">
       <button type="button" id="noteTagNextBtn" onclick="openNextUntagged()" class="flex-1 py-3 rounded-xl border border-slate-300 text-sm font-bold text-slate-700">次のタグなしへ</button>
-      <button type="button" onclick="closeSheet('noteTagSheet')" class="flex-1 py-3 rounded-xl bg-blue-900 text-white text-sm font-bold">閉じる</button>
+      <button type="button" onclick="closeSheet('noteTagSheet')" class="flex-1 py-3 rounded-xl bg-blue-900 text-white text-sm font-bold">完了</button>
     </div>
   </div>
 </div>
@@ -2352,7 +2489,7 @@
 
     <div class="relative space-y-1">
       <textarea id="editNoteContentInput" rows="5" oninput="handleHashtagTyping(this, 'noteModalSuggestBox'); renderQuickHashtagBar('noteModalTagBar', 'editNoteContentInput');" placeholder="本文を入力（#でタグ補完）..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white outline-none focus:border-blue-950 leading-relaxed"></textarea>
-      <div id="noteModalSuggestBox" class="hidden flex items-center gap-1 flex-wrap p-1 rounded-md bg-blue-950 text-white text-[10px] shadow-md"></div>
+      <div id="noteModalSuggestBox" class="tag-suggest hidden" onpointerdown="event.preventDefault()"></div>
     </div>
 
     <div class="space-y-1">
@@ -2380,6 +2517,7 @@
 <script>
   App.mount('#slot-timeline-main', 'timelineWorkspaceSection');
   App.mount('#slot-modals', 'noteTagSheet');
+  App.mount('#slot-modals', 'tagManageSheet');
 
   var KEY_PINNED_HASHTAGS = 'worklife_os_pinned_hashtags_v1';
   var DEFAULT_PINNED_HASHTAGS = ['#思考整理', '#仕事メモ', '#学び', '#アイデア', '#読書', '#振り返り', '#開発', '#メモ'];
@@ -2499,7 +2637,6 @@
     ta.value = (cur ? cur + '\n' : '') + m.body + '\n';
     growTextarea(ta);
     saveSnsDraft();
-    renderQuickHashtagBar('snsQuickTagBar', 'snsQuickPostInput');
     window.scrollTo(0, 0);
     return true;
   }
@@ -2588,31 +2725,196 @@
     showToast('保存しました');
   }
 
-  // ---- あとからタグを付ける ----
-  var tagSheetNoteId = '';
-  function openNoteTagSheet(id) {
-    tagSheetNoteId = id;
+  // 「#」ボタン: カーソルの位置に # を入れて、タグの一覧を出す
+  function typeHashInMemo() {
+    var ta = document.getElementById('snsQuickPostInput');
+    var focused = document.activeElement === ta;
+    var pos = focused ? ta.selectionStart : ta.value.length;
+    var before = ta.value.slice(0, pos), after = ta.value.slice(pos);
+    var ins = (before && !/\s$/.test(before) ? ' ' : '') + '#';
+    ta.value = before + ins + after;
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = pos + ins.length;
+    ta.dispatchEvent(new Event('input'));
+  }
+
+  // ---- タグの一覧と編集 ----
+  var tagEditing = '', tagDeleting = '';
+  function openTagManage() {
+    tagEditing = ''; tagDeleting = '';
+    document.getElementById('tagManageSearch').value = '';
+    renderTagManage();
+    openSheet('tagManageSheet');
+  }
+
+  function renderTagManage() {
+    var q = document.getElementById('tagManageSearch').value.trim();
+    var all = allKnownTags(db.notes), counts = tagCounts(db.notes);
+    var list = q ? searchTags(all, q) : all;
+    var untagged = (db.notes || []).filter(function(n) { return (n.content || n.title) && !tagsOfNote(n).length; }).length;
+    document.getElementById('tagManageCount').textContent = all.length + ' 個';
+    var esc = function(t) { return escapeHtml(t).replace(/'/g, '&#39;'); };
+    var html = (!q && untagged ? '<div class="tag-manage-row"><button type="button" class="tag-manage-name" onclick="filterByTagFromManage(UNTAGGED)"><span class="text-slate-500">タグなし</span><small>' + untagged + '</small></button></div>' : '');
+    html += list.map(function(t) {
+      var d = escapeHtml(t), n = counts[tagKey(t)] || 0;
+      if (tagEditing && tagKey(tagEditing) === tagKey(t)) {
+        return '<form class="tag-manage-row is-edit" onsubmit="event.preventDefault(); saveTagRename()"><span class="text-slate-400">#</span>' +
+          '<input type="text" id="tagRenameInput" value="' + escapeHtml(t.replace(/^#/, '')) + '" enterkeyhint="done" autocomplete="off">' +
+          '<button type="submit" class="today-text-btn">保存</button><button type="button" class="today-text-btn" onclick="tagEditing = \'\'; renderTagManage()">やめる</button></form>';
+      }
+      var del = tagDeleting && tagKey(tagDeleting) === tagKey(t);
+      return '<div class="tag-manage-row"><button type="button" class="tag-manage-name" data-tag="' + d + '" onclick="filterByTagFromManage(this.getAttribute(\'data-tag\'))"><span>' + d + '</span><small>' + n + '</small></button>' +
+        '<button type="button" class="today-icon-btn" data-tag="' + d + '" onclick="startTagRename(this.getAttribute(\'data-tag\'))" aria-label="名前を変える"><i class="fa-solid fa-pen"></i></button>' +
+        (del ? '<button type="button" class="tag-del-confirm" data-tag="' + d + '" onclick="confirmTagDelete(this.getAttribute(\'data-tag\'))">削除する</button>'
+             : '<button type="button" class="today-icon-btn" data-tag="' + d + '" onclick="tagDeleting = this.getAttribute(\'data-tag\'); renderTagManage()" aria-label="削除"><i class="fa-regular fa-trash-can"></i></button>') +
+        '</div>';
+    }).join('');
+    document.getElementById('tagManageList').innerHTML = html || '<div class="today-empty">' + (q ? '見つかりません' : 'まだタグがありません') + '</div>';
+    if (tagEditing) { var inp = document.getElementById('tagRenameInput'); if (inp) { inp.focus(); inp.select(); } }
+  }
+
+  function filterByTagFromManage(tag) {
+    closeSheet('tagManageSheet');
+    activeSnsTagFilter = '';
+    toggleSnsTagFilter(tag);
+    window.scrollTo(0, 0);
+  }
+
+  function startTagRename(tag) { tagEditing = tag; tagDeleting = ''; renderTagManage(); }
+
+  // よく使うタグ・固定中のタグの一覧も合わせる
+  function replaceInTagLists(from, to) {
+    var fk = tagKey(from), map = function(list) {
+      return uniqTags(list.map(function(t) {
+        var k = tagKey(t);
+        if (k === fk) return to;
+        if (to && k.indexOf(fk + '/') === 0) return to + normalizeTag(t).slice(normalizeTag(from).length);
+        return t;
+      }).filter(Boolean));
+    };
+    var pinned = getPinnedHashtags(), nextPinned = map(pinned);
+    if (JSON.stringify(pinned) !== JSON.stringify(nextPinned)) {
+      try { localStorage.setItem(KEY_PINNED_HASHTAGS, JSON.stringify(nextPinned)); } catch (e) {}
+      pushCloudAppSetting('pinnedHashtags', nextPinned);
+    }
+    var st = getStickyTags();
+    if (st.length) try { localStorage.setItem(KEY_STICKY_TAGS, JSON.stringify(map(st))); } catch (e) {}
+    return { pinned: pinned, sticky: st };
+  }
+
+  function restoreTagLists(saved) {
+    try { localStorage.setItem(KEY_PINNED_HASHTAGS, JSON.stringify(saved.pinned)); } catch (e) {}
+    pushCloudAppSetting('pinnedHashtags', saved.pinned);
+    try { localStorage.setItem(KEY_STICKY_TAGS, JSON.stringify(saved.sticky)); } catch (e) {}
+  }
+
+  function undoTagChange(changed, lists) {
+    changed.forEach(function(c) {
+      var i = (db.notes || []).findIndex(function(n) { return n.id === c.id; });
+      if (i !== -1) db.notes[i] = c.before;
+    });
+    restoreTagLists(lists);
+    saveNotesImmediate();
+    renderNotesWorkspace();
+    if (!document.getElementById('tagManageSheet').classList.contains('hidden')) renderTagManage();
+    showToast('元に戻しました');
+  }
+
+  function saveTagRename() {
+    var from = tagEditing, to = normalizeTag(document.getElementById('tagRenameInput').value);
+    if (!to) return showToast('名前を入力してください', true);
+    tagEditing = '';
+    if (tagKey(to) === tagKey(from)) { // 大文字・小文字など表記だけの変更
+      if (to === from) return renderTagManage();
+    }
+    var merge = allKnownTags(db.notes).some(function(t) { return tagKey(t) === tagKey(to) && tagKey(t) !== tagKey(from); });
+    if (merge) to = canonicalTags([to])[0];
+    var changed = tagKey(to) === tagKey(from)
+      ? applyTagChange(db.notes, function(cur) { return tagKey(cur) === tagKey(from) ? to : undefined; })
+      : renameTagInNotes(db.notes, from, to);
+    var lists = replaceInTagLists(from, to);
+    if (activeSnsTagFilter && tagKey(activeSnsTagFilter) === tagKey(from)) activeSnsTagFilter = to;
+    saveNotesImmediate();
+    renderNotesWorkspace();
+    renderTagManage();
+    showUndo((merge ? from + ' を ' + to + ' に統合' : from + ' を ' + to + ' に変更') + '（' + changed.length + ' 件）', function() { undoTagChange(changed, lists); });
+  }
+
+  function confirmTagDelete(tag) {
+    tagDeleting = '';
+    var changed = deleteTagFromNotes(db.notes, tag);
+    var lists = replaceInTagLists(tag, '');
+    if (activeSnsTagFilter && tagKey(activeSnsTagFilter) === tagKey(tag)) activeSnsTagFilter = '';
+    saveNotesImmediate();
+    renderNotesWorkspace();
+    renderTagManage();
+    showUndo(tag + ' を外しました（' + changed.length + ' 件。メモは残ります）', function() { undoTagChange(changed, lists); });
+  }
+
+  // 入力欄の本文にあるタグを付け外しする（入力欄にはフォーカスを移さない＝キーボードを出さない）
+  function toggleTagInInput(inputId, tag) {
+    var el = document.getElementById(inputId), txt = el.value || '', tags = extractHashtagsFromText(txt);
+    if (hasTag(tags, tag)) el.value = removeTagFromText(txt, tag);
+    else {
+      if (!tagLimitOk(tags.concat([tag]), tags)) return false;
+      tag = canonicalTags([tag])[0];
+      el.value = txt + (txt && !/\s$/.test(txt) ? ' ' : '') + tag + ' ';
+    }
+    el.dispatchEvent(new Event('input'));
+    return true;
+  }
+
+  // ---- タグを探して付ける ----
+  // target: { note: メモの ID } か { input: 入力欄の ID }
+  var tagPickTarget = {};
+  function openTagPicker(target) {
+    tagPickTarget = target || {};
     document.getElementById('noteTagInput').value = '';
     renderNoteTagSheet();
     if (document.getElementById('noteTagSheet').classList.contains('hidden')) openSheet('noteTagSheet');
   }
+  function openNoteTagSheet(id) { openTagPicker({ note: id }); }
+
+  function pickedNote() { return tagPickTarget.note ? (db.notes || []).find(function(x) { return x.id === tagPickTarget.note; }) : null; }
+
+  function pickedTags() {
+    if (tagPickTarget.input) {
+      var el = document.getElementById(tagPickTarget.input);
+      return el ? extractHashtagsFromText(el.value).filter(function(t) { return !hasTag(AUTO_TAGS, t); }) : [];
+    }
+    var n = pickedNote();
+    return n ? userTagsOf(n) : [];
+  }
 
   function renderNoteTagSheet() {
-    var n = (db.notes || []).find(function(x) { return x.id === tagSheetNoteId; });
-    if (!n) return;
-    var cur = userTagsOf(n);
+    var n = pickedNote();
+    if (!n && !tagPickTarget.input) return;
+    var cur = pickedTags(), q = document.getElementById('noteTagInput').value.trim();
     var chip = function(t, on) {
       return '<button type="button" data-tag="' + escapeHtml(t) + '" onclick="toggleNoteTag(this.getAttribute(\'data-tag\'))" class="memo-chip' + (on ? ' is-on' : '') + '">' + escapeHtml(t) + (on ? ' <i class="fa-solid fa-xmark"></i>' : '') + '</button>';
     };
-    document.getElementById('noteTagPreview').textContent = ((n.title ? n.title + ' ' : '') + stripHashtagsFromTitle(n.content || '')).slice(0, 120);
+    var preview = n ? (n.title ? n.title + ' ' : '') + stripHashtagsFromTitle(n.content || '') : stripHashtagsFromTitle(document.getElementById(tagPickTarget.input).value);
+    document.getElementById('noteTagPreview').textContent = preview.slice(0, 120);
     document.getElementById('noteTagCount').textContent = cur.length + ' / ' + MAX_TAGS;
-    document.getElementById('noteTagCurrent').innerHTML = cur.length ? cur.map(function(t) { return chip(t, true); }).join('') : '<span class="today-none">まだありません</span>';
-    document.getElementById('noteTagPool').innerHTML = tagPool(db.notes, cur, getPinnedHashtags(), 24).filter(function(t) { return !hasTag(cur, t); }).map(function(t) { return chip(t, false); }).join('');
-    document.getElementById('noteTagNextBtn').classList.toggle('hidden', !nextUntaggedNote());
+    document.getElementById('noteTagCurrent').innerHTML = cur.length ? cur.map(function(t) { return chip(t, true); }).join('') : '<span class="today-none">タグはまだありません</span>';
+    var text = n ? (n.title || '') + ' ' + (n.content || '') : document.getElementById(tagPickTarget.input).value;
+    var list = q ? searchTags(allKnownTags(db.notes), q) : tagPool(db.notes, cur, getPinnedHashtags(), 40, text).concat(allKnownTags(db.notes));
+    list = uniqTags(list).filter(function(t) { return !hasTag(cur, t); }).slice(0, 40);
+    var fresh = normalizeTag(q);
+    var exact = fresh && (hasTag(cur, fresh) || allKnownTags(db.notes).some(function(t) { return tagKey(t) === tagKey(fresh); }));
+    // 見つかったタグを先に、新しく作る選択肢は最後に
+    document.getElementById('noteTagPool').innerHTML =
+      (list.length ? list.map(function(t) { return chip(t, false); }).join('') : (fresh ? '' : '<span class="today-none">まだタグがありません。上の欄に打つと作れます</span>')) +
+      (fresh && !exact ? '<button type="button" data-tag="' + escapeHtml(fresh) + '" onclick="toggleNoteTag(this.getAttribute(\'data-tag\'))" class="memo-chip is-new"><i class="fa-solid fa-plus"></i> ' + escapeHtml(fresh) + ' を作る</button>' : '');
+    document.getElementById('noteTagNextBtn').classList.toggle('hidden', !n || !nextUntaggedNote());
   }
 
   function toggleNoteTag(tag) {
-    var n = (db.notes || []).find(function(x) { return x.id === tagSheetNoteId; });
+    if (tagPickTarget.input) {
+      if (toggleTagInInput(tagPickTarget.input, tag)) afterTagPicked();
+      return;
+    }
+    var n = pickedNote();
     if (!n) return;
     var cur = tagsOfNote(n);
     if (hasTag(cur, tag)) {
@@ -2626,23 +2928,34 @@
       n.tags = canonicalTags(cur.concat([tag]));
     }
     persistNoteToStateAndSync(n);
-    renderNoteTagSheet();
     if (currentView === 'timeline') renderNotesWorkspace();
+    afterTagPicked();
   }
 
-  function addNoteTagFromInput() {
-    var inp = document.getElementById('noteTagInput'), tag = normalizeTag(inp.value);
-    if (!tag) return;
+  // 付けたら検索を空にして、続けて探せるようにする
+  function afterTagPicked() {
+    var inp = document.getElementById('noteTagInput');
+    var typing = document.activeElement === inp;
     inp.value = '';
-    toggleNoteTag(tag);
+    renderNoteTagSheet();
+    if (typing) inp.focus();
+  }
+
+  // 検索欄で Enter: 一番上の「既にあるタグ」を付ける。
+  // 新しいタグは「作る」を押したときだけ（変換前の読みで Enter を押して、意図しないタグができないように）
+  function addTopTagFromSearch() {
+    var btn = document.querySelector('#noteTagPool button:not(.is-new)');
+    if (btn) return toggleNoteTag(btn.getAttribute('data-tag'));
+    if (document.querySelector('#noteTagPool .is-new')) showToast('新しいタグは「作る」を押すと付きます');
   }
 
   // 今のメモより前（古い方）にある、タグのないメモ
   function nextUntaggedNote() {
+    if (!tagPickTarget.note) return null;
     var list = (db.notes || []).filter(function(n) { return n.content || n.title; }).slice().sort(function(a, b) {
       return String(b.createdAt || '').localeCompare(String(a.createdAt || '')) || String(b.time || '').localeCompare(String(a.time || ''));
     });
-    var at = list.findIndex(function(n) { return n.id === tagSheetNoteId; });
+    var at = list.findIndex(function(n) { return n.id === tagPickTarget.note; });
     return list.slice(at + 1).concat(list.slice(0, Math.max(0, at))).find(function(n) { return !tagsOfNote(n).length; });
   }
 
@@ -2808,29 +3121,9 @@
     if (dateLbl && dateInp) dateLbl.textContent = dateInp.value && dateInp.value !== formatDateLocal(new Date()) ? dateInp.value.slice(5).replace('-', '/') + ' として保存' : '';
 
     restoreSnsDraft();
-    renderQuickHashtagBar('snsQuickTagBar', 'snsQuickPostInput');
     renderStickyState();
 
-    var clearBtn = document.getElementById('snsClearTagFilterBtn');
-    if (clearBtn) clearBtn.classList.toggle('hidden', !activeSnsTagFilter && !feedQuery());
     renderPhotoBar('sns');
-
-    var filterBar = document.getElementById('snsFilterTagsBar');
-    if (filterBar) {
-      var rec = recentTags(db.notes);
-      var used = uniqTags(rec.map(function(t) { return tagParent(t) || t; }).concat(rec));
-      var count = function(t) { return (db.notes || []).filter(function(n) { return tagMatches(userTagsOf(n), t); }).length; };
-      var untagged = (db.notes || []).filter(function(n) { return (n.content || n.title) && !tagsOfNote(n).length; }).length;
-      var shown = feedAllTags ? used : used.slice(0, 10);
-      if (activeSnsTagFilter && activeSnsTagFilter !== UNTAGGED && !hasTag(shown, activeSnsTagFilter)) shown = [activeSnsTagFilter].concat(shown);
-      var chip = function(tg, label, n) {
-        var active = activeSnsTagFilter === tg || (!!activeSnsTagFilter && tg !== UNTAGGED && activeSnsTagFilter !== UNTAGGED && tagKey(activeSnsTagFilter) === tagKey(tg));
-        return '<button type="button" data-tag="' + escapeHtml(tg) + '" onclick="toggleSnsTagFilter(this.getAttribute(\'data-tag\'))" class="feed-chip' + (active ? ' is-active' : '') + '">' + escapeHtml(label) + (n ? ' <span class="opacity-60">' + n + '</span>' : '') + '</button>';
-      };
-      filterBar.innerHTML = shown.map(function(tg) { return chip(tg, tg, count(tg)); }).join('') +
-        (used.length > 10 ? '<button type="button" onclick="feedAllTags = !feedAllTags; renderNotesWorkspace()" class="feed-chip">' + (feedAllTags ? '閉じる' : '他 ' + (used.length - 10)) + '</button>' : '') +
-        (untagged ? chip(UNTAGGED, 'タグなし', untagged) : '');
-    }
 
     var feed = document.getElementById('snsTimelineFeedList');
     if (!feed) return;
@@ -2953,13 +3246,16 @@
     renderNotesWorkspace();
   }
 
+  // 絞り込み・検索をしているときだけ、何で絞っているかと件数を出す
   function renderFeedSummary(items, q) {
-    var el = document.getElementById('feedResultSummary');
+    var el = document.getElementById('feedFilterBar');
     if (!el) return;
     var on = !!(q || activeSnsTagFilter);
     el.classList.toggle('hidden', !on);
-    if (!on) return;
-    el.textContent = items.length + ' 件' + (activeSnsTagFilter ? '（' + (activeSnsTagFilter === UNTAGGED ? 'タグなし' : activeSnsTagFilter) + '）' : '');
+    if (!on) { el.innerHTML = ''; return; }
+    var label = activeSnsTagFilter ? (activeSnsTagFilter === UNTAGGED ? 'タグなし' : activeSnsTagFilter) : '';
+    el.innerHTML = '<span>' + escapeHtml([label, q ? '「' + q + '」' : ''].filter(Boolean).join(' ・ ')) + '<small>' + items.length + ' 件</small></span>' +
+      '<button type="button" onclick="clearSnsTagFilter()" aria-label="絞り込みをやめる"><i class="fa-solid fa-xmark"></i></button>';
   }
 
   App.on('data:loaded', function() {

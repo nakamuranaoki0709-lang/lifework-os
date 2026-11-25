@@ -1,5 +1,5 @@
 // 端末内の画面を即座に返す（通信を待たない）。更新は裏で取得し、次回の起動から反映する
-const CACHE = 'lifework-f6ce077f0d42';
+const CACHE = 'lifework-77c4c9e67da3';
 const ASSETS = ["./index.html","./manifest.json","./icon.svg","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./vendor/icons.css","./vendor/fa-solid-900.woff2","./vendor/fa-regular-400.woff2"];
 
 self.addEventListener('install', event => {
